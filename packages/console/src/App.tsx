@@ -1,4 +1,5 @@
-import ReactFlow from 'reactflow';
+import ReactFlow , { Background, MiniMap,
+  Controls, BackgroundVariant } from 'reactflow';
 import './App.css'
 import 'reactflow/dist/style.css';
 
@@ -11,8 +12,12 @@ const initialNodes = [
 const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }];
 
   return (
-    <div style={{ width: '100vw', height: '100vh' }}>
-      <ReactFlow nodes={initialNodes} edges={initialEdges} />
+    <div style={{ width: '100vw', height: '100vh'}}>
+      <ReactFlow nodes={initialNodes} edges={initialEdges}>
+        <Background color="#FFFFFF" variant={BackgroundVariant.Dots} />
+        <Controls />
+        <MiniMap />
+      </ReactFlow>
     </div>
   )
 }
