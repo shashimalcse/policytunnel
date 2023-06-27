@@ -12,6 +12,7 @@ importers:
 
   packages/console:
     specifiers:
+      '@policytunnel/core': workspace:^1.0.0
       '@types/react': ^18.0.37
       '@types/react-dom': ^18.0.11
       '@typescript-eslint/eslint-plugin': ^5.59.0
@@ -26,6 +27,7 @@ importers:
       typescript: ^5.0.2
       vite: ^4.3.9
     dependencies:
+      '@policytunnel/core': link:../core
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       reactflow: 11.7.2_react-dom@18.2.0+react@18.2.0
