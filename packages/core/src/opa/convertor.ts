@@ -8,9 +8,9 @@ export interface Validator {
 }
 export interface Conf {
    fields?: (FieldsEntity)[] | null;
-   if?: (IfEntity)[] | null;
-   then?: (ThenEntity) | null;
-   else?: (ElseEntity) | null;
+   if?: (ConditionalEntity)[] | null;
+   then?: (ConditionalEntity) | null;
+   else?: (ConditionalEntity) | null;
 }
 export interface FieldsEntity {
    field: string;
@@ -18,20 +18,10 @@ export interface FieldsEntity {
    value: string;
 }
 
-export interface IfEntity {
+export interface ConditionalEntity {
    name: string;
    conf: Conf;
 }
-export interface ThenEntity {
-   name: string;
-   conf: Conf | null;
-}
-export interface ElseEntity {
-   name: string;
-   conf: Conf | null;
-}
-
-
 
 export const getRegoPolicy = (): String => {
    const jsonString = `{
@@ -91,7 +81,7 @@ export const getRegoPolicy = (): String => {
                      "conf":{
                         
                      },
-                     "name":"false"
+                     "name":"true"
                }
             }
          }
