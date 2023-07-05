@@ -37,7 +37,9 @@ describe ('Get allowed path conditions', () => {
             ]
         }`
 
-        const allowedConditions = getRegoPolicy (jsonString);
+        const allowedConditions = getRegoPolicy(jsonString);
+        console.log(allowedConditions)
+
 
     })
 })

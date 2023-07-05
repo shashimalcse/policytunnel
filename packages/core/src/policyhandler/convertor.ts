@@ -24,69 +24,69 @@ export interface ConditionalEntity {
 }
 
 export const getRegoPolicy = (jsonString: string): any => {
-   const sample = `{
-      "validators":[
-         {
-            "name":"conditional",
-            "conf":{
-               "if":[
-                  {
-                     "conf":{
-                        "fields":[
-                           {
-                              "comparator":"contains",
-                              "field":"authnCtx.scp",
-                              "value":[
-                                 "email",
-                                 "profile"
-                              ]
-                           }
-                        ]
-                     },
-                     "name":"attributes"
-                  }
-               ],
-               "then": {
-                     "conf":{
-                        "if":[
-                           {
-                              "conf":{
-                                 "fields":[
-                                    {
-                                       "comparator":"equals",
-                                       "field":"authnCtx.gender",
-                                       "value":"female"
-                                    }
-                                 ]
-                              },
-                              "name":"authn-context"
-                           }
-                        ],
-                        "then":{
-                              "conf":{
+   // const sample = `{
+   //    "validators":[
+   //       {
+   //          "name":"conditional",
+   //          "conf":{
+   //             "if":[
+   //                {
+   //                   "conf":{
+   //                      "fields":[
+   //                         {
+   //                            "comparator":"contains",
+   //                            "field":"authnCtx.scp",
+   //                            "value":[
+   //                               "email",
+   //                               "profile"
+   //                            ]
+   //                         }
+   //                      ]
+   //                   },
+   //                   "name":"attributes"
+   //                }
+   //             ],
+   //             "then": {
+   //                   "conf":{
+   //                      "if":[
+   //                         {
+   //                            "conf":{
+   //                               "fields":[
+   //                                  {
+   //                                     "comparator":"equals",
+   //                                     "field":"authnCtx.gender",
+   //                                     "value":"female"
+   //                                  }
+   //                               ]
+   //                            },
+   //                            "name":"authn-context"
+   //                         }
+   //                      ],
+   //                      "then":{
+   //                            "conf":{
                                  
-                              },
-                              "name":"false"
-                        },
-                        "else":{
-                              "conf":{
+   //                            },
+   //                            "name":"false"
+   //                      },
+   //                      "else":{
+   //                            "conf":{
                                  
-                              },
-                              "name":"true"
-                        }
-                     },
-                     "name":"conditional"
-               },
-               "else":{
-                     "conf":{
+   //                            },
+   //                            "name":"true"
+   //                      }
+   //                   },
+   //                   "name":"conditional"
+   //             },
+   //             "else":{
+   //                   "conf":{
                         
-                     },
-                     "name":"true"
-               }
-            }
-         }
-      ]
-   }`;
+   //                   },
+   //                   "name":"true"
+   //             }
+   //          }
+   //       }
+   //    ]
+   // }`;
 
    const input: Input = JSON.parse(jsonString)
    const allowedPaths = findAllowedPaths(input);
