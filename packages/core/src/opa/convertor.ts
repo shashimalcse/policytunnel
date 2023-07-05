@@ -8,16 +8,14 @@ export interface Validator {
 }
 export interface Conf {
    fields?: (FieldsEntity)[] | null;
-   branches?: (BranchesEntity)[] | null;
+   if?: (IfEntity)[] | null;
+   then?: (ThenEntity)[] | null;
+   else?: (ElseEntity)[] | null;
 }
 export interface FieldsEntity {
    field: string;
    comparator: string;
    value: string;
-}
-export interface BranchesEntity {
-   if?: (IfEntity)[] | null;
-   then?: (ThenEntity)[] | null;
 }
 
 export interface IfEntity {
@@ -28,118 +26,93 @@ export interface ThenEntity {
    name: string;
    conf: Conf | null;
 }
+export interface ElseEntity {
+   name: string;
+   conf: Conf | null;
+}
 
 
 
 export const getRegoPolicy = (): String => {
    const jsonString = `{
-        "validators": [
+      "validators":[
          {
             "name":"conditional",
             "conf":{
-               "branches":[
+               "if":[
                   {
-                     "if":[
-                        {
-                           "conf":{
-                              "fields":[
-                                 {
-                                    "comparator":"contains",
-                                    "field":"authnCtx.scp",
-                                    "value":[
-                                       "email",
-                                       "profile"
-                                    ]
-                                 }
+                     "conf":{
+                        "fields":[
+                           {
+                              "comparator":"contains",
+                              "field":"authnCtx.scp",
+                              "value":[
+                                 "email",
+                                 "profile"
                               ]
-                           },
-                           "name":"attributes"
-                        }
-                     ],
-                     "then":[
-                        {
-                           "conf":{
-                              "branches":[
-                                 {
-                                    "if":[
-                                       {
-                                          "conf":{
-                                             "fields":[
-                                                {
-                                                   "comparator":"equals",
-                                                   "field":"authnCtx.gender",
-                                                   "value":"female"
-                                                }
-                                             ]
-                                          },
-                                          "name":"authn-context"
-                                       }
-                                    ],
-                                    "then":[
-                                       {
-                                          "conf":{
-                                             
-                                          },
-                                          "name":"false"
-                                       }
-                                    ]
-                                 },
-                                 {
-                                    "if":[
-                                       {
-                                          "conf":{
-                                             
-                                          },
-                                          "name":"true"
-                                       }
-                                    ],
-                                    "then":[
-                                       {
-                                          "conf":{
-                                             
-                                          },
-                                          "name":"true"
-                                       }
-                                    ]
-                                 }
-                              ]
-                           },
-                           "name":"conditional"
-                        }
-                     ]
-                  },
+                           }
+                        ]
+                     },
+                     "name":"attributes"
+                  }
+               ],
+               "then":[
                   {
-                     "if":[
-                        {
-                           "conf":{
-                              
-                           },
-                           "name":"true"
-                        }
-                     ],
-                     "then":[
-                        {
-                           "conf":{
-                              
-                           },
-                           "name":"false"
-                        }
-                     ]
+                     "conf":{
+                        "if":[
+                           {
+                              "conf":{
+                                 "fields":[
+                                    {
+                                       "comparator":"equals",
+                                       "field":"authnCtx.gender",
+                                       "value":"female"
+                                    }
+                                 ]
+                              },
+                              "name":"authn-context"
+                           }
+                        ],
+                        "then":[
+                           {
+                              "conf":{
+                                 
+                              },
+                              "name":"false"
+                           }
+                        ],
+                        "else":[
+                           {
+                              "conf":{
+                                 
+                              },
+                              "name":"true"
+                           }
+                        ]
+                     },
+                     "name":"conditional"
+                  }
+               ],
+               "else":[
+                  {
+                     "conf":{
+                        
+                     },
+                     "name":"false"
                   }
                ]
-            },
-            "recovery":null
+            }
          }
       ]
-     }`;
+   }`;
 
    const input: Input = JSON.parse(jsonString)
-   console.log(input)
    const falseThenPaths = findFalseThenEntities(input);
-   falseThenPaths.forEach(function (value) {
-      traversePath(input, value)
-   })
    console.log(falseThenPaths)
+   // falseThenPaths.forEach(function (value) {
+   //    traversePath(input, value)
+   //    console.log("======================")
+   // })
    var regoPolicy = ""
    return regoPolicy
 }
@@ -154,7 +127,7 @@ function findFalseThenEntities(input: Input): string[] {
             traverseObject(obj[i], `${path}[${i}]`);
          }
       } else if (typeof obj === 'object' && obj !== null) {
-         if (obj.name === 'false') {
+         if (obj.name === 'true') {
             falseThenPaths.push(path);
          }
          for (const key in obj) {
@@ -178,10 +151,15 @@ function traversePath(input: Input, path: string): any {
    keys.forEach(keyArr => {
       keyArr.forEach(key => {
          if (typeof result !== 'undefined' && result !== null && key in result) {
-            result = result[key];
-            if (result.if) {
+            if (result.branches) {
                console.log(result)
             }
+            result = result[key];
+            // if (result.then && result.then[0].name != "conditional") {
+            //    result.if.forEach((con: any) => {
+                  
+            //    })
+            // }
        } else {
             result = undefined;
          }
@@ -189,3 +167,4 @@ function traversePath(input: Input, path: string): any {
    });
    return result;
 }
+
