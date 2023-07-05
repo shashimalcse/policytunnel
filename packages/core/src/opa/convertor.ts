@@ -9,8 +9,8 @@ export interface Validator {
 export interface Conf {
    fields?: (FieldsEntity)[] | null;
    if?: (IfEntity)[] | null;
-   then?: (ThenEntity)[] | null;
-   else?: (ElseEntity)[] | null;
+   then?: (ThenEntity) | null;
+   else?: (ElseEntity) | null;
 }
 export interface FieldsEntity {
    field: string;
@@ -56,8 +56,7 @@ export const getRegoPolicy = (): String => {
                      "name":"attributes"
                   }
                ],
-               "then":[
-                  {
+               "then": {
                      "conf":{
                         "if":[
                            {
@@ -73,52 +72,46 @@ export const getRegoPolicy = (): String => {
                               "name":"authn-context"
                            }
                         ],
-                        "then":[
-                           {
+                        "then":{
                               "conf":{
                                  
                               },
                               "name":"false"
-                           }
-                        ],
-                        "else":[
-                           {
+                        },
+                        "else":{
                               "conf":{
                                  
                               },
                               "name":"true"
-                           }
-                        ]
+                        }
                      },
                      "name":"conditional"
-                  }
-               ],
-               "else":[
-                  {
+               },
+               "else":{
                      "conf":{
                         
                      },
                      "name":"false"
-                  }
-               ]
+               }
             }
          }
       ]
    }`;
 
    const input: Input = JSON.parse(jsonString)
-   const falseThenPaths = findFalseThenEntities(input);
+   const falseThenPaths = findAllowedPaths(input);
    console.log(falseThenPaths)
-   // falseThenPaths.forEach(function (value) {
-   //    traversePath(input, value)
-   //    console.log("======================")
-   // })
+   falseThenPaths.forEach(function (value) {
+      const conditions  = traverseAllowedPath(input, value)
+      console.log(conditions)
+      console.log("==========")
+   })
    var regoPolicy = ""
    return regoPolicy
 }
 
-function findFalseThenEntities(input: Input): string[] {
-   const falseThenPaths: string[] = [];
+function findAllowedPaths(input: Input): string[] {
+   const allowedPaths: string[] = [];
 
    // Recursive function to traverse the object
    function traverseObject(obj: any, path: string) {
@@ -128,7 +121,7 @@ function findFalseThenEntities(input: Input): string[] {
          }
       } else if (typeof obj === 'object' && obj !== null) {
          if (obj.name === 'true') {
-            falseThenPaths.push(path);
+            allowedPaths.push(path);
          }
          for (const key in obj) {
             traverseObject(obj[key], `${path}.${key}`);
@@ -142,29 +135,30 @@ function findFalseThenEntities(input: Input): string[] {
       }
    }
 
-   return falseThenPaths;
+   return allowedPaths;
 }
 
-function traversePath(input: Input, path: string): any {
+function traverseAllowedPath(input: Input, path: string): any[] {
+   const ifConditions: any = { negative: [], positive: [] }
    const keys = path.split('.').map(key => key.replace(/\[(\d+)\]/, '.$1').replace(/^\./, '').split('.'));
    let result: any = input;
    keys.forEach(keyArr => {
       keyArr.forEach(key => {
          if (typeof result !== 'undefined' && result !== null && key in result) {
-            if (result.branches) {
-               console.log(result)
+            if (result.name == "conditional") {
+               if (result.conf.else.name == "true") {
+                  ifConditions.negative.push(result.conf.if)
+               } else {
+                  ifConditions.positive.push(result.conf.if)
+               }
+               
             }
             result = result[key];
-            // if (result.then && result.then[0].name != "conditional") {
-            //    result.if.forEach((con: any) => {
-                  
-            //    })
-            // }
        } else {
             result = undefined;
          }
       });
    });
-   return result;
+   return ifConditions;
 }
 
