@@ -38,7 +38,8 @@ describe ('Get allowed path conditions', () => {
         }`
 
         const allowedConditions = getRegoPolicy(jsonString);
-        console.log(allowedConditions)
+        const input: any = JSON.parse(jsonString)
+        expect(input.validators[0].conf.if).toStrictEqual(allowedConditions[0].negative[0]);
 
 
     })
