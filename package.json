@@ -4,12 +4,21 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:libs": "pnpm run --parallel  --filter \"@policytunnel/core\" build",
+    "test:unit": "pnpm build:libs && pnpm run --parallel --filter \"@policytunnel/core\" test:unit"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^20.3.0",
-    "typescript": "^5.1.3"
+    "ts-jest": "^29.1.1",
+    "ts-patch": "^3.0.1",
+    "tsconfig-paths": "^4.2.0",
+    "ttypescript": "^1.5.15",
+    "typescript": "^5.1.3",
+    "typescript-transform-paths": "^3.4.6"
+  },
+  "dependencies": {
+    "jest": "^29.6.0"
   }
 }

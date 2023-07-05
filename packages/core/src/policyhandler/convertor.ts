@@ -23,8 +23,8 @@ export interface ConditionalEntity {
    conf: Conf;
 }
 
-export const getRegoPolicy = (): String => {
-   const jsonString = `{
+export const getRegoPolicy = (jsonString: string): any => {
+   const sample = `{
       "validators":[
          {
             "name":"conditional",
@@ -89,15 +89,13 @@ export const getRegoPolicy = (): String => {
    }`;
 
    const input: Input = JSON.parse(jsonString)
-   const falseThenPaths = findAllowedPaths(input);
-   console.log(falseThenPaths)
-   falseThenPaths.forEach(function (value) {
+   const allowedPaths = findAllowedPaths(input);
+   const allowedConditions: any[] = [];
+   allowedPaths.forEach(function (value) {
       const conditions  = traverseAllowedPath(input, value)
-      console.log(conditions)
-      console.log("==========")
+      allowedConditions.push(conditions)
    })
-   var regoPolicy = ""
-   return regoPolicy
+   return allowedConditions
 }
 
 function findAllowedPaths(input: Input): string[] {
