@@ -26,7 +26,7 @@ export interface ConditionalEntity {
 export enum PathType {
    Allow,
    Deny
- }
+}
 
 export const getRegoPolicy = (jsonString: string, pathType:PathType): any => {
 
@@ -34,10 +34,29 @@ export const getRegoPolicy = (jsonString: string, pathType:PathType): any => {
    const paths = findPaths(input, pathType);
    const conditions: any[] = [];
    paths.forEach(function (value) {
-      const pathconditions  = traversePath(input, value, pathType)
-      conditions.push(pathconditions)
+      const pathConditions: any = traversePath(input, value, pathType);
+      console.log("positive")
+      pathConditions.positive.forEach( function(value: ConditionalEntity[]) {
+         value.forEach(function (ifCon) {
+            const opaCondition = getOpaCondition(ifCon)
+         })
+
+      })
+      console.log("negative")
+      pathConditions.negative.forEach( function(value: ConditionalEntity[]) {
+         value.forEach(function (ifCon) {
+            const opaCondition = getOpaCondition(ifCon)
+         })
+      })
+      conditions.push(pathConditions)
    })
    return conditions
+}
+
+function getOpaCondition(condition: ConditionalEntity): string {
+   
+   console.log(condition.conf.fields)
+   return ""
 }
 
 function findPaths(input: Input, pathType: PathType): string[] {
@@ -78,7 +97,7 @@ function findPaths(input: Input, pathType: PathType): string[] {
    return allowedPaths;
 }
 
-function traversePath(input: Input, path: string, pathType: PathType): any[] {
+function traversePath(input: Input, path: string, pathType: PathType): any {
 
    let checkType: string;
    switch (pathType) {
