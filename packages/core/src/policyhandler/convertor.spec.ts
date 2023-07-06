@@ -1,7 +1,7 @@
 import { getRegoPolicy } from "./convertor";
 
 describe ('Get allowed path conditions', () => {
-    it ('simple policy', () => {
+    it ('one condition policy', () => {
         const jsonString = `{
             "validators": [
               {
@@ -39,8 +39,8 @@ describe ('Get allowed path conditions', () => {
 
         const allowedConditions = getRegoPolicy(jsonString);
         const input: any = JSON.parse(jsonString)
+        expect(allowedConditions[0].negative.length).toEqual(1);
+        expect(allowedConditions[0].positive.length).toEqual(0);
         expect(input.validators[0].conf.if).toStrictEqual(allowedConditions[0].negative[0]);
-
-
     })
 })
