@@ -23,21 +23,36 @@ export interface ConditionalEntity {
    conf: Conf;
 }
 
-export const getRegoPolicy = (jsonString: string): any => {
+export enum PathType {
+   Allow,
+   Deny
+ }
+
+export const getRegoPolicy = (jsonString: string, pathType:PathType): any => {
 
    const input: Input = JSON.parse(jsonString)
-   const allowedPaths = findAllowedPaths(input);
-   const allowedConditions: any[] = [];
-   allowedPaths.forEach(function (value) {
-      const conditions  = traverseAllowedPath(input, value)
-      allowedConditions.push(conditions)
+   const paths = findPaths(input, pathType);
+   const conditions: any[] = [];
+   paths.forEach(function (value) {
+      const pathconditions  = traversePath(input, value, pathType)
+      conditions.push(pathconditions)
    })
-   return allowedConditions
+   return conditions
 }
 
-function findAllowedPaths(input: Input): string[] {
+function findPaths(input: Input, pathType: PathType): string[] {
    const allowedPaths: string[] = [];
-
+   let checkType: string;
+   switch (pathType) {
+      case PathType.Allow : {
+         checkType = 'true';
+         break;
+      }
+      case PathType.Deny : {
+         checkType = 'false';
+         break;
+      }
+   } 
    // Recursive function to traverse the object
    function traverseObject(obj: any, path: string) {
       if (Array.isArray(obj)) {
@@ -45,7 +60,7 @@ function findAllowedPaths(input: Input): string[] {
             traverseObject(obj[i], `${path}[${i}]`);
          }
       } else if (typeof obj === 'object' && obj !== null) {
-         if (obj.name === 'true') {
+         if (obj.name === checkType) {
             allowedPaths.push(path);
          }
          for (const key in obj) {
@@ -63,7 +78,19 @@ function findAllowedPaths(input: Input): string[] {
    return allowedPaths;
 }
 
-function traverseAllowedPath(input: Input, path: string): any[] {
+function traversePath(input: Input, path: string, pathType: PathType): any[] {
+
+   let checkType: string;
+   switch (pathType) {
+      case PathType.Allow : {
+         checkType = 'true';
+         break;
+      }
+      case PathType.Deny : {
+         checkType = 'false';
+         break;
+      }
+   } 
    const ifConditions: any = { negative: [], positive: [] }
    const keys = path.split('.').map(key => key.replace(/\[(\d+)\]/, '.$1').replace(/^\./, '').split('.'));
    let result: any = input;
@@ -71,7 +98,7 @@ function traverseAllowedPath(input: Input, path: string): any[] {
       keyArr.forEach(key => {
          if (typeof result !== 'undefined' && result !== null && key in result) {
             if (result.name == "conditional") {
-               if (result.conf.else.name == "true") {
+               if (result.conf.else.name == checkType) {
                   ifConditions.negative.push(result.conf.if)
                } else {
                   ifConditions.positive.push(result.conf.if)
