@@ -55,7 +55,19 @@ export const getRegoPolicy = (jsonString: string, pathType:PathType): any => {
 
 function getOpaCondition(condition: ConditionalEntity): string {
    
-   console.log(condition.conf.fields)
+
+   if (condition.conf.fields) {
+      switch (condition.conf.fields[0].comparator) {
+         case "contains": {
+            console.log("contains")
+            break;
+         }
+         case "equals": {
+            console.log("equals")
+            break;
+         }
+      }
+   }
    return ""
 }
 
