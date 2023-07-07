@@ -1,3 +1,5 @@
+import { readFileSync, writeFileSync } from 'fs';
+
 export interface Input {
    validators: Validator[] | null
 }
@@ -33,29 +35,52 @@ export const getRegoPolicy = (jsonString: string, pathType:PathType): any => {
    const input: Input = JSON.parse(jsonString)
    const paths = findPaths(input, pathType);
    const conditions: any[] = [];
+   const policies = [
+      "package example",
+      "import future.keywords.if",
+      "default allow := false"
+   ]
    paths.forEach(function (value) {
       const pathConditions: any = traversePath(input, value, pathType);
       console.log("positive")
       pathConditions.positive.forEach( function(value: ConditionalEntity[]) {
+         const opaPositiveConditions: string[] = [
+            "allow {"
+         ]
          value.forEach(function (ifCon) {
             const opaCondition = getOpaCondition(ifCon)
+            policies.push(opaCondition)
+            opaPositiveConditions.push(ifCon.name + "_" + ifCon.conf.fields![0].comparator)
          })
+         opaPositiveConditions.push("}")
+         const policyPositiveContent = opaPositiveConditions.join('\n');
+         policies.push(policyPositiveContent)
 
       })
       console.log("negative")
       pathConditions.negative.forEach( function(value: ConditionalEntity[]) {
+         const opaNegativeConditions: string[] = [
+            "allow {"
+         ]
          value.forEach(function (ifCon) {
             const opaCondition = getOpaCondition(ifCon)
+            policies.push(opaCondition)
+            opaNegativeConditions.push("not " + ifCon.name + "_" + ifCon.conf.fields![0].comparator)
          })
+         opaNegativeConditions.push("}")
+         const policyNegativeContent = opaNegativeConditions.join('\n');
+         policies.push(policyNegativeContent)
       })
       conditions.push(pathConditions)
    })
-   return conditions
+   const policiesContent = policies.join('\n');
+   console.log(policiesContent)
+   return policiesContent
 }
 
 function getOpaCondition(condition: ConditionalEntity): string {
    
-
+   let opaCondition: string = "";
    if (condition.conf.fields) {
       switch (condition.conf.fields[0].comparator) {
          case "contains": {
@@ -63,12 +88,12 @@ function getOpaCondition(condition: ConditionalEntity): string {
             break;
          }
          case "equals": {
-            console.log("equals")
+            opaCondition = condition.name + "_" + condition.conf.fields[0].comparator + " if input." + condition.conf.fields[0].field + " == \"" + condition.conf.fields[0].value + "\"";
             break;
          }
       }
    }
-   return ""
+   return opaCondition
 }
 
 function findPaths(input: Input, pathType: PathType): string[] {
