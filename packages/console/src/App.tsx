@@ -2,6 +2,7 @@ import ReactFlow, {
   Background, MiniMap,
   Controls, BackgroundVariant
 } from 'reactflow';
+import { CodeBlock } from "react-code-blocks";
 import { PathType, getRegoPolicy } from "@policytunnel/core/src/policy_handler/convertor";
 import './App.css'
 import 'reactflow/dist/style.css';
@@ -15,36 +16,65 @@ function App() {
   ];
   const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }];
   const jsonString = `{
-    "validators": [
+    "validators":[
       {
-        "name": "conditional",
-        "conf": {
-          "if": [
-            {
-              "conf": {
-                "fields": [
-                  {
-                    "comparator": "equals",
-                    "field": "authnCtx.gender",
-                    "value": "female"
-                  }
-                ]
-              },
-              "name": "attributes"
+          "name":"conditional",
+          "conf":{
+            "if":[
+                {
+                  "conf":{
+                      "fields":[
+                        {
+                          "comparator":"equals",
+                          "field":"authnCtx.username",
+                          "value":"shashimal"
+                        }
+                      ]
+                  },
+                  "name":"context"
+                }
+            ],
+            "then": {
+                  "conf":{
+                      "if":[
+                        {
+                            "conf":{
+                              "fields":[
+                                  {
+                                    "comparator":"not_equals",
+                                    "field":"authnCtx.gender",
+                                    "value":"female"
+                                  }
+                              ]
+                            },
+                            "name":"context"
+                        }
+                      ],
+                      "then":{
+                            "conf":{
+                              
+                            },
+                            "name":"false"
+                      },
+                      "else":{
+                            "conf":{
+                              
+                            },
+                            "name":"true"
+                      }
+                  },
+                  "name":"conditional"
+            },
+            "else":{
+                  "conf":{
+                      
+                  },
+                  "name":"false"
             }
-          ],
-          "then": {
-            "conf": {},
-            "name": "false"
-          },
-          "else": {
-            "conf": {},
-            "name": "true"
           }
-        }
       }
     ]
-  }`
+}`
   const [result, setResult] = useState(''); 
   const handleButtonClick = () => {
     // Function logic goes here
@@ -53,16 +83,21 @@ function App() {
   };
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
-      <div style={{ width: '80vw'}}>
+      <div style={{ width: '70vw'}}>
         <ReactFlow nodes={initialNodes} edges={initialEdges}>
           <Background color="#FFFFFF" variant={BackgroundVariant.Dots} />
           <Controls />
           <MiniMap />
         </ReactFlow>
       </div>
-      <div style={{ width: '20vw', backgroundColor: 'gray' }}>
+      <div style={{ width: '30vw', backgroundColor: 'white' }}>
         <button onClick={handleButtonClick}>Genarate OPA policy</button>
-        <p>{result}</p>
+        <CodeBlock
+          text={result}
+          language='javascript'
+          showLineNumbers={false}
+          startingLineNumber={10} wrapLongLines={false}        
+        />
       </div>
     </div>
   )
