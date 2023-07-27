@@ -1,20 +1,30 @@
 import ReactFlow, {
   Background, MiniMap,
-  Controls, BackgroundVariant
+  Controls, BackgroundVariant, applyEdgeChanges, applyNodeChanges, addEdge
 } from 'reactflow';
 import { CodeBlock } from "react-code-blocks";
 import { PathType, getRegoPolicy } from "@policytunnel/core/src/policy_handler/convertor";
 import './App.css'
 import 'reactflow/dist/style.css';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import IfBlock from './nodes/if_block';
 
 function App() {
 
+  const nodeTypes = {
+    ifBlock: IfBlock,
+  };
+
   const initialNodes = [
-    { id: '1', position: { x: 0, y: 0 }, data: { label: '1' } },
-    { id: '2', position: { x: 0, y: 100 }, data: { label: '2' } },
+    { id: '1', type: 'input', position: { x: 100, y: 50 }, data: { label: 'start' }, sourcePosition: 'right' },
+    { id: '2', type: 'output', position: { x: 650, y: 25 }, data: { label: 'end' }, targetPosition: 'left' },
+    {
+      id: '3',
+      type: 'ifBlock',
+      position: { x: 300, y: 50 },
+    },
   ];
-  const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }];
+  const initialEdges:any = [];
   const jsonString = `{
     "validators":[
       {
@@ -76,6 +86,15 @@ function App() {
     ]
 }`
   const [result, setResult] = useState(''); 
+  const [nodes, setNodes] = useState(initialNodes);
+  const [edges, setEdges] = useState(initialEdges);
+  const onNodesChange = useCallback( (changes:any) => setNodes((nds:any) => applyNodeChanges(changes, nds)),[] );
+  const onEdgesChange = useCallback( (changes:any) => setEdges((eds:any) => applyEdgeChanges(changes, eds)),[] );
+  const onConnect = useCallback(
+    (params:any) =>
+      setEdges((eds:any) => addEdge({ ...params, animated: true, style: { stroke: '#fff' } }, eds)),
+    []
+  );
   const handleButtonClick = () => {
     // Function logic goes here
     const output = getRegoPolicy(jsonString, PathType.Allow)
@@ -84,7 +103,7 @@ function App() {
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
       <div style={{ width: '70vw'}}>
-        <ReactFlow nodes={initialNodes} edges={initialEdges}>
+        <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect}>
           <Background color="#FFFFFF" variant={BackgroundVariant.Dots} />
           <Controls />
           <MiniMap />
