@@ -8,15 +8,17 @@ import './App.css'
 import 'reactflow/dist/style.css';
 import { useState, useCallback } from 'react';
 import IfBlock from './nodes/if_block';
+import StartBlock from './nodes/start_block';
 
 function App() {
 
   const nodeTypes = {
     ifBlock: IfBlock,
+    startBlock: StartBlock
   };
 
   const initialNodes = [
-    { id: '1', type: 'input', position: { x: 100, y: 50 }, data: { label: 'start' }, sourcePosition: 'right' },
+    { id: '1', type: 'startBlock', position: { x: 100, y: 50 }},
     { id: '2', type: 'output', position: { x: 650, y: 25 }, data: { label: 'end' }, targetPosition: 'left' },
     {
       id: '3',
@@ -101,15 +103,15 @@ function App() {
     setResult(output);
   };
   return (
-    <div style={{ display: 'flex', height: '100vh' }}>
-      <div style={{ width: '70vw'}}>
+    <div className='flex h-screen'>
+      <div className='w-4/5 bg-gray-900'>
         <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect}>
           <Background color="#FFFFFF" variant={BackgroundVariant.Dots} />
           <Controls />
           <MiniMap />
         </ReactFlow>
       </div>
-      <div style={{ width: '30vw', backgroundColor: 'white' }}>
+      <div className='w-1/5'>
         <button onClick={handleButtonClick}>Genarate OPA policy</button>
         <CodeBlock
           text={result}
