@@ -1,6 +1,6 @@
 import ReactFlow, {
   Background, MiniMap,
-  Controls, BackgroundVariant, applyEdgeChanges, applyNodeChanges, addEdge
+  Controls, BackgroundVariant, applyEdgeChanges, applyNodeChanges, addEdge, Node, Edge, OnConnect, OnEdgesChange, OnNodesChange
 } from 'reactflow';
 import { CodeBlock } from "react-code-blocks";
 import { PathType, getRegoPolicy } from "@policytunnel/core/src/policy_handler/convertor";
@@ -11,24 +11,28 @@ import IfBlock from './nodes/if_block';
 import StartBlock from './nodes/start_block';
 import EndBlock from './nodes/end_block';
 
+const nodeTypes = {
+  ifBlock: IfBlock,
+  startBlock: StartBlock,
+  endBlock: EndBlock
+};
+
+const initialNodes: Node[] = [
+  { id: '1', type: 'startBlock', position: { x: 100, y: 50 }, data: null},
+  { id: '2', type: 'endBlock', position: { x: 650, y: 25 }, data: null},
+  {
+    id: '3',
+    type: 'ifBlock',
+    position: { x: 300, y: 50 }, data: null
+  },
+];
+const initialEdges:Edge[] = [];
+
 function App() {
 
-  const nodeTypes = {
-    ifBlock: IfBlock,
-    startBlock: StartBlock,
-    endBlock: EndBlock
-  };
+  const [nodes, setNodes] = useState<Node[]>(initialNodes);
+  const [edges, setEdges] = useState<Edge[]>(initialEdges);
 
-  const initialNodes = [
-    { id: '1', type: 'startBlock', position: { x: 100, y: 50 }},
-    { id: '2', type: 'endBlock', position: { x: 650, y: 25 }},
-    {
-      id: '3',
-      type: 'ifBlock',
-      position: { x: 300, y: 50 },
-    },
-  ];
-  const initialEdges:any = [];
   const jsonString = `{
     "validators":[
       {
@@ -90,14 +94,17 @@ function App() {
     ]
 }`
   const [result, setResult] = useState(''); 
-  const [nodes, setNodes] = useState(initialNodes);
-  const [edges, setEdges] = useState(initialEdges);
-  const onNodesChange = useCallback( (changes:any) => setNodes((nds:any) => applyNodeChanges(changes, nds)),[] );
-  const onEdgesChange = useCallback( (changes:any) => setEdges((eds:any) => applyEdgeChanges(changes, eds)),[] );
-  const onConnect = useCallback(
-    (params:any) =>
-      setEdges((eds:any) => addEdge({ ...params, animated: true, style: { stroke: '#fff' } }, eds)),
-    []
+  const onNodesChange: OnNodesChange = useCallback(
+    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    [setNodes]
+  );
+  const onEdgesChange: OnEdgesChange = useCallback(
+    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    [setEdges]
+  );
+  const onConnect: OnConnect = useCallback(
+    (connection) => setEdges((eds) => addEdge(connection, eds)),
+    [setEdges]
   );
   const handleButtonClick = () => {
     // Function logic goes here
