@@ -28,6 +28,13 @@ const initialNodes: Node[] = [
 ];
 const initialEdges:Edge[] = [];
 
+const edgeOptions = {
+  animated: true,
+  style: {
+    stroke: 'white',
+  },
+};
+
 function App() {
 
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
@@ -114,7 +121,7 @@ function App() {
   return (
     <div className='flex h-screen'>
       <div className='w-4/5 bg-gray-900'>
-        <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect}>
+        <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect} defaultEdgeOptions={edgeOptions}>
           <Background color="#FFFFFF" variant={BackgroundVariant.Dots} />
           <Controls />
           <MiniMap />
