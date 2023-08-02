@@ -9,17 +9,19 @@ import 'reactflow/dist/style.css';
 import { useState, useCallback } from 'react';
 import IfBlock from './nodes/if_block';
 import StartBlock from './nodes/start_block';
+import EndBlock from './nodes/end_block';
 
 function App() {
 
   const nodeTypes = {
     ifBlock: IfBlock,
-    startBlock: StartBlock
+    startBlock: StartBlock,
+    endBlock: EndBlock
   };
 
   const initialNodes = [
     { id: '1', type: 'startBlock', position: { x: 100, y: 50 }},
-    { id: '2', type: 'output', position: { x: 650, y: 25 }, data: { label: 'end' }, targetPosition: 'left' },
+    { id: '2', type: 'endBlock', position: { x: 650, y: 25 }},
     {
       id: '3',
       type: 'ifBlock',
