@@ -6,13 +6,6 @@ type IfBlockData = {
   };
 
 function IfBlock({ data }: NodeProps<IfBlockData>) {
-
-  const [isOpen, setIsOpen] = useState(false);
-  const options = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
-
-  const toggleDropdown = () => {
-    setIsOpen((prev) => !prev);
-  };
   
   return (
     <>
