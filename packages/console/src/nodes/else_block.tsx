@@ -11,7 +11,7 @@ function ElseBlock() {
                 onConnect={(params) => console.log('handle onConnect', params)}
                 isConnectable={true}
             />
-            <div className='flex justify-center items-center w-16 h-10 rounded-lg bg-white font-sans'>
+            <div className='flex justify-center items-center w-16 h-10 rounded-md border-2 border-gray-300 shadow-md bg-white font-sans text-xs'>
                 <div className=''>Else</div>
             </div>
             <Handle

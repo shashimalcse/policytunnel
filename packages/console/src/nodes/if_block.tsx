@@ -16,9 +16,9 @@ function IfBlock({ data }: NodeProps<IfBlockData>) {
         onConnect={(params) => console.log('handle onConnect', params)}
         isConnectable={true}
       />
-    <div className="w-80 bg-white rounded-md shadow-md p-3 flex flex-col items-center text-xs">
+    <div className="w-56 bg-white rounded-md border-2 border-gray-300 shadow-md p-3 flex flex-col items-center text-xs">
       {/* Name */}
-      <div className="mb-3 w-full text-center text-base">
+      <div className="mb-3 w-full text-center">
         If block
       </div>
 
@@ -31,9 +31,9 @@ function IfBlock({ data }: NodeProps<IfBlockData>) {
           id="dropdown1"
           className="border border-gray-300 rounded w-full px-3 py-2"
         >
-          <option value="option1">Option 1</option>
-          <option value="option2">Option 2</option>
-          <option value="option3">Option 3</option>
+          <option value="option1">username</option>
+          <option value="option2">gender</option>
+          <option value="option3">lastname</option>
         </select>
       </div>
 
@@ -68,14 +68,7 @@ function IfBlock({ data }: NodeProps<IfBlockData>) {
         type="source"
         position={Position.Right}
         id="a"
-        style={{ top: 10, background: '#555' }}
-        isConnectable={true}
-      />
-      <Handle
-        type="source"
-        position={Position.Right}
-        id="b"
-        style={{ bottom: 10, top: 'auto', background: '#555' }}
+        style={{ background: '#555' }}
         isConnectable={true}
       />
     </>
