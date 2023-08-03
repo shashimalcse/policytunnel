@@ -12,7 +12,7 @@ function FailBlock() {
                 isConnectable={true}
             />
 <div className='flex justify-center items-center w-16 h-10 rounded-md border-2 border-gray-300 shadow-md bg-white font-sans text-xs'>
-                <div className=''>Fail</div>
+                <div className='text-rose-600'>Fail</div>
             </div>
             <Handle
                 type="source"

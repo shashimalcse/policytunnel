@@ -12,7 +12,7 @@ function PassBlock() {
                 isConnectable={true}
             />
 <div className='flex justify-center items-center w-16 h-10 rounded-md border-2 border-gray-300 shadow-md bg-white font-sans text-xs'>
-                <div className=''>Pass</div>
+                <div className='text-emerald-600'>Pass</div>
             </div>
             <Handle
                 type="source"

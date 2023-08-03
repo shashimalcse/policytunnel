@@ -14,6 +14,7 @@ import ElseBlock from './nodes/else_block';
 import ThenBlock from './nodes/then_block';
 import PassBlock from './nodes/pass_block';
 import FailBlock from './nodes/fail_block';
+import ActionBar from './components/action_bar';
 
 const nodeTypes = {
   ifBlock: IfBlock,
@@ -26,8 +27,8 @@ const nodeTypes = {
 };
 
 const initialNodes: Node[] = [
-  { id: '1', type: 'startBlock', position: { x: 100, y: 150 }, data: null},
-  { id: '2', type: 'endBlock', position: { x: 950, y: 150 }, data: null},
+  { id: '1', type: 'startBlock', position: { x: 100, y: 150 }, data: null },
+  { id: '2', type: 'endBlock', position: { x: 950, y: 150 }, data: null },
   {
     id: '3',
     type: 'ifBlock',
@@ -54,7 +55,7 @@ const initialNodes: Node[] = [
     position: { x: 450, y: 400 }, data: null
   },
 ];
-const initialEdges:Edge[] = [];
+const initialEdges: Edge[] = [];
 
 const edgeOptions = {
   animated: true,
@@ -128,7 +129,7 @@ function App() {
       }
     ]
 }`
-  const [result, setResult] = useState(''); 
+  const [result, setResult] = useState('');
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
     [setNodes]
@@ -147,23 +148,29 @@ function App() {
     setResult(output);
   };
   return (
-    <div className='flex h-screen'>
-      <div className='w-4/5 bg-gray-400'>
+    <div>
+
+      <div className="h-screen w-screen flex justify-center items-center">
         <ReactFlow className="bg-gray-200" nodes={nodes} edges={edges} nodeTypes={nodeTypes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect} defaultEdgeOptions={edgeOptions}>
           <Background variant={BackgroundVariant.Dots} />
           <Controls />
           <MiniMap />
         </ReactFlow>
       </div>
-      <div className='w-1/5'>
+      <div className="w-1/6 fixed top-5 left-5 bottom-40 rounded-lg bg-white">
+        <ActionBar />
+      </div>
+      {/* <div className="w-2/6 fixed top-5 right-5 bottom-[200px] rounded-lg bg-white">
         <button onClick={handleButtonClick}>Genarate OPA policy</button>
         <CodeBlock
           text={result}
           language='javascript'
           showLineNumbers={false}
-          startingLineNumber={10} wrapLongLines={false}        
+          startingLineNumber={10} wrapLongLines={false}
         />
-      </div>
+      </div> */}
+
+      {/* Main Content */}
     </div>
   )
 }
