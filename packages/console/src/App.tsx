@@ -1,7 +1,8 @@
 import ReactFlow, {
   Background, MiniMap,
-  Controls, BackgroundVariant, applyEdgeChanges, applyNodeChanges, addEdge, Node, Edge, OnConnect, OnEdgesChange, OnNodesChange
+  Controls, BackgroundVariant, ReactFlowProvider
 } from 'reactflow';
+import { shallow } from 'zustand/shallow';
 import { CodeBlock } from "react-code-blocks";
 import { PathType, getRegoPolicy } from "@policytunnel/core/src/policy_handler/convertor";
 import './App.css'
@@ -26,36 +27,16 @@ const nodeTypes = {
   failBlock: FailBlock
 };
 
-const initialNodes: Node[] = [
-  { id: '1', type: 'startBlock', position: { x: 100, y: 150 }, data: null },
-  { id: '2', type: 'endBlock', position: { x: 950, y: 150 }, data: null },
-  {
-    id: '3',
-    type: 'ifBlock',
-    position: { x: 250, y: 50 }, data: null
-  },
-  {
-    id: '4',
-    type: 'elseBlock',
-    position: { x: 350, y: 400 }, data: null
-  },
-  {
-    id: '5',
-    type: 'thenBlock',
-    position: { x: 650, y: 150 }, data: null
-  },
-  {
-    id: '6',
-    type: 'passBlock',
-    position: { x: 750, y: 150 }, data: null
-  },
-  {
-    id: '7',
-    type: 'failBlock',
-    position: { x: 450, y: 400 }, data: null
-  },
-];
-const initialEdges: Edge[] = [];
+import useStore from './store';
+
+const selector = (state: { nodes: any; edges: any; onNodesChange: any; onEdgesChange: any; onConnect: any; addNode: any; }) => ({
+  nodes: state.nodes,
+  edges: state.edges,
+  onNodesChange: state.onNodesChange,
+  onEdgesChange: state.onEdgesChange,
+  onConnect: state.onConnect,
+  addNode: state.addNode,
+});
 
 const edgeOptions = {
   animated: true,
@@ -64,10 +45,11 @@ const edgeOptions = {
   },
 };
 
+let nodeId = 3;
+
 function App() {
 
-  const [nodes, setNodes] = useState<Node[]>(initialNodes);
-  const [edges, setEdges] = useState<Edge[]>(initialEdges);
+  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode } = useStore(selector, shallow);
 
   const jsonString = `{
     "validators":[
@@ -130,37 +112,50 @@ function App() {
     ]
 }`
   const [result, setResult] = useState('');
-  const onNodesChange: OnNodesChange = useCallback(
-    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-    [setNodes]
-  );
-  const onEdgesChange: OnEdgesChange = useCallback(
-    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-    [setEdges]
-  );
-  const onConnect: OnConnect = useCallback(
-    (connection) => setEdges((eds) => addEdge(connection, eds)),
-    [setEdges]
-  );
   const handleButtonClick = () => {
     // Function logic goes here
     const output = getRegoPolicy(jsonString, PathType.Allow)
     setResult(output);
   };
-  return (
-    <div>
 
-      <div className="h-screen w-screen flex justify-center items-center">
-        <ReactFlow className="bg-gray-200" nodes={nodes} edges={edges} nodeTypes={nodeTypes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect} defaultEdgeOptions={edgeOptions}>
-          <Background variant={BackgroundVariant.Dots} />
-          <Controls />
-          <MiniMap />
-        </ReactFlow>
-      </div>
-      <div className="w-1/6 fixed top-5 left-5 bottom-40 rounded-lg bg-white">
-        <ActionBar />
-      </div>
-      {/* <div className="w-2/6 fixed top-5 right-5 bottom-[200px] rounded-lg bg-white">
+  const addConditionalBlock = () => {
+    const ifBlockId = `${++nodeId}`;
+    const ifBlock = {
+      id: ifBlockId,
+      type: 'ifBlock',
+      position: { x: 250, y: 50 }, data: null
+    };
+    const thenBlockId = `${++nodeId}`;
+    const thenBlock = {
+      id: thenBlockId,
+      type: 'thenBlock',
+      position: { x: 650, y: 150 }, data: null
+    };
+    const elseBlockId = `${++nodeId}`;
+    const elseBlock = {
+      id: elseBlockId,
+      type: 'elseBlock',
+      position: { x: 350, y: 400 }, data: null
+    };
+    addNode(ifBlock);
+    addNode(thenBlock);
+    addNode(elseBlock);
+  };
+
+  return (
+      <div>
+
+        <div className="h-screen w-screen flex justify-center items-center">
+          <ReactFlow className="bg-gray-200" nodes={nodes} edges={edges} nodeTypes={nodeTypes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect} defaultEdgeOptions={edgeOptions}>
+            <Background variant={BackgroundVariant.Dots} />
+            <Controls />
+            <MiniMap />
+          </ReactFlow>
+        </div>
+        <div className="w-1/6 fixed top-5 left-5 bottom-40 rounded-lg bg-white">
+          <ActionBar addConditionalBlock={addConditionalBlock}/>
+        </div>
+        {/* <div className="w-2/6 fixed top-5 right-5 bottom-[200px] rounded-lg bg-white">
         <button onClick={handleButtonClick}>Genarate OPA policy</button>
         <CodeBlock
           text={result}
@@ -170,9 +165,10 @@ function App() {
         />
       </div> */}
 
-      {/* Main Content */}
-    </div>
+        {/* Main Content */}
+      </div>
   )
 }
 
 export default App
+

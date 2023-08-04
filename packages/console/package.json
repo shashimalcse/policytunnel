@@ -15,7 +15,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "reactflow": "^11.7.2",
-    "typesjest": "link:/typesjest"
+    "typesjest": "link:/typesjest",
+    "zustand": "^4.4.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.2",
