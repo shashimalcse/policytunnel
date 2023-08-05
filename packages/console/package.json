@@ -10,12 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.3",
+    "@mui/material": "^5.14.3",
     "@policytunnel/core": "workspace:^1.0.0",
     "jest": "^29.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "reactflow": "^11.7.2",
     "typesjest": "link:/typesjest",
+    "utils": "link:@mui/material/utils",
     "zustand": "^4.4.0"
   },
   "devDependencies": {
