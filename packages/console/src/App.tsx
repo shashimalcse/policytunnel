@@ -7,7 +7,7 @@ import { CodeBlock } from "react-code-blocks";
 import { PathType, getRegoPolicy } from "@policytunnel/core/src/policy_handler/convertor";
 import './App.css'
 import 'reactflow/dist/style.css';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import IfBlock from './nodes/if_block';
 import StartBlock from './nodes/start_block';
 import EndBlock from './nodes/end_block';
@@ -46,111 +46,50 @@ const edgeOptions = {
   },
 };
 
-let nodeId = 3;
-
 function App() {
 
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, addEdge } = useStore(selector, shallow);
-
-  const jsonString = `{
-    "validators":[
-      {
-          "name":"conditional",
-          "conf":{
-            "if":[
-                {
-                  "conf":{
-                      "fields":[
-                        {
-                          "comparator":"equals",
-                          "field":"authnCtx.username",
-                          "value":"shashimal"
-                        }
-                      ]
-                  },
-                  "name":"context"
-                }
-            ],
-            "then": {
-                  "conf":{
-                      "if":[
-                        {
-                            "conf":{
-                              "fields":[
-                                  {
-                                    "comparator":"not_equals",
-                                    "field":"authnCtx.gender",
-                                    "value":"female"
-                                  }
-                              ]
-                            },
-                            "name":"context"
-                        }
-                      ],
-                      "then":{
-                            "conf":{
-                              
-                            },
-                            "name":"false"
-                      },
-                      "else":{
-                            "conf":{
-                              
-                            },
-                            "name":"true"
-                      }
-                  },
-                  "name":"conditional"
-            },
-            "else":{
-                  "conf":{
-                      
-                  },
-                  "name":"false"
-            }
-          }
-      }
-    ]
-}`
-  const [result, setResult] = useState('');
-  const handleButtonClick = () => {
-    // Function logic goes here
-    const output = getRegoPolicy(jsonString, PathType.Allow)
-    setResult(output);
-  };
+  const [selectedNodeId, setSelectedNodeId] = useState<any>(1);
+  const [selectedNode, setSelectedNode] = useState<any>();
 
   const addConditionalBlock = () => {
-    const ifBlockId = `${++nodeId}`;
+    const ifBlockId: number = selectedNodeId + 1;
     const ifBlock = {
       id: ifBlockId,
       type: 'ifBlock',
-      position: { x: 250, y: 50 }, data: null
+      position: { x: selectedNode.position.x + 150, y: selectedNode.position.y - 200 }, data: null
     };
-    const thenBlockId = `${++nodeId}`;
+    const thenBlockId: number = selectedNodeId + 2;
     const thenBlock = {
       id: thenBlockId,
       type: 'thenBlock',
-      position: { x: 650, y: 150 }, data: null
+      position: { x: ifBlock.position.x + 300, y: ifBlock.position.y + 100 }, data: null
     };
-    const elseBlockId = `${++nodeId}`;
+    const elseBlockId: number = selectedNodeId + 3;
     const elseBlock = {
       id: elseBlockId,
       type: 'elseBlock',
-      position: { x: 350, y: 400 }, data: null
+      position: { x: ifBlock.position.x + 50, y: selectedNode.position.y + 100 }, data: null
     };
     addNode(ifBlock);
     addNode(thenBlock);
     addNode(elseBlock);
-    addEdge({ id: 'e' + 1 + '-' + ifBlockId, source: '1', target: ifBlockId })
-    addEdge({ id: 'e' + 1 + '-' + elseBlockId, source: '1', target: elseBlockId })
+    addEdge({ id: 'e' + selectedNodeId + '-' + ifBlockId, source: selectedNodeId, target: ifBlockId })
+    addEdge({ id: 'e' + selectedNodeId + '-' + elseBlockId, source: selectedNodeId, target: elseBlockId })
     addEdge({ id: 'e' + ifBlockId + '-' + thenBlockId, source: ifBlockId, target: thenBlockId })
+    setSelectedNodeId(selectedNodeId + 4)
   };
 
   return (
       <div>
 
         <div className="h-screen w-screen flex justify-center items-center">
-          <ReactFlow className="bg-gray-200" nodes={nodes} edges={edges} nodeTypes={nodeTypes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect} defaultEdgeOptions={edgeOptions}>
+          <ReactFlow className="bg-gray-200" nodes={nodes} edges={edges} nodeTypes={nodeTypes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} defaultEdgeOptions={edgeOptions}   onNodeClick={(event, node) => {
+          if (node?.id) {
+            setSelectedNode(node)
+            setSelectedNodeId(node.id)
+          }
+        }}>
             <Background variant={BackgroundVariant.Dots} />
             <Controls />
             <MiniMap />

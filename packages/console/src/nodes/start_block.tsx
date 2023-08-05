@@ -1,8 +1,8 @@
-import { Handle, Position } from 'reactflow';
+import { Handle, Position, NodeProps } from 'reactflow';
 import AddIcon from '@mui/icons-material/Add';
 
+const StartBlock = () => {
 
-function StartBlock() {
   return (
     <>
       <div className='flex justify-center items-center w-16 h-16 rounded-full border-4 border-white shadow-md bg-black font-sans text-white text-xs'>
