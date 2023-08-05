@@ -29,13 +29,14 @@ const nodeTypes = {
 
 import useStore from './store';
 
-const selector = (state: { nodes: any; edges: any; onNodesChange: any; onEdgesChange: any; onConnect: any; addNode: any; }) => ({
+const selector = (state: { nodes: any; edges: any; onNodesChange: any; onEdgesChange: any; onConnect: any; addNode: any; addEdge: any; }) => ({
   nodes: state.nodes,
   edges: state.edges,
   onNodesChange: state.onNodesChange,
   onEdgesChange: state.onEdgesChange,
   onConnect: state.onConnect,
   addNode: state.addNode,
+  addEdge: state.addEdge
 });
 
 const edgeOptions = {
@@ -49,7 +50,7 @@ let nodeId = 3;
 
 function App() {
 
-  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode } = useStore(selector, shallow);
+  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, addEdge } = useStore(selector, shallow);
 
   const jsonString = `{
     "validators":[
@@ -140,6 +141,9 @@ function App() {
     addNode(ifBlock);
     addNode(thenBlock);
     addNode(elseBlock);
+    addEdge({ id: 'e' + 1 + '-' + ifBlockId, source: '1', target: ifBlockId })
+    addEdge({ id: 'e' + 1 + '-' + elseBlockId, source: '1', target: elseBlockId })
+    addEdge({ id: 'e' + ifBlockId + '-' + thenBlockId, source: ifBlockId, target: thenBlockId })
   };
 
   return (
