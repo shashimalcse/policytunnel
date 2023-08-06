@@ -15,6 +15,7 @@ import ElseBlock from './nodes/else_block';
 import ThenBlock from './nodes/then_block';
 import PassBlock from './nodes/pass_block';
 import FailBlock from './nodes/fail_block';
+import {BlockType} from './components/action_bar';
 import ActionBar from './components/action_bar';
 
 const nodeTypes = {
@@ -52,32 +53,64 @@ function App() {
   const [selectedNodeId, setSelectedNodeId] = useState<any>(1);
   const [selectedNode, setSelectedNode] = useState<any>();
 
-  const addConditionalBlock = () => {
-    const ifBlockId: number = selectedNodeId + 1;
-    const ifBlock = {
-      id: ifBlockId,
-      type: 'ifBlock',
-      position: { x: selectedNode.position.x + 150, y: selectedNode.position.y - 200 }, data: null
-    };
-    const thenBlockId: number = selectedNodeId + 2;
-    const thenBlock = {
-      id: thenBlockId,
-      type: 'thenBlock',
-      position: { x: ifBlock.position.x + 300, y: ifBlock.position.y + 100 }, data: null
-    };
-    const elseBlockId: number = selectedNodeId + 3;
-    const elseBlock = {
-      id: elseBlockId,
-      type: 'elseBlock',
-      position: { x: ifBlock.position.x + 50, y: selectedNode.position.y + 100 }, data: null
-    };
-    addNode(ifBlock);
-    addNode(thenBlock);
-    addNode(elseBlock);
-    addEdge({ id: 'e' + selectedNodeId + '-' + ifBlockId, source: selectedNodeId, target: ifBlockId })
-    addEdge({ id: 'e' + selectedNodeId + '-' + elseBlockId, source: selectedNodeId, target: elseBlockId })
-    addEdge({ id: 'e' + ifBlockId + '-' + thenBlockId, source: ifBlockId, target: thenBlockId })
-    setSelectedNodeId(selectedNodeId + 4)
+  const addConditionalBlock = (blockType: BlockType) => {
+    switch (blockType) {
+      case (BlockType.CONDITIONAL) : {
+        const ifBlockId: number = selectedNodeId + 1;
+        const ifBlock = {
+          id: ifBlockId,
+          type: 'ifBlock',
+          position: { x: selectedNode.position.x + 150, y: selectedNode.position.y - 200 }, data: null
+        };
+        const thenBlockId: number = selectedNodeId + 2;
+        const thenBlock = {
+          id: thenBlockId,
+          type: 'thenBlock',
+          position: { x: ifBlock.position.x + 300, y: ifBlock.position.y + 100 }, data: null
+        };
+        const elseBlockId: number = selectedNodeId + 3;
+        const elseBlock = {
+          id: elseBlockId,
+          type: 'elseBlock',
+          position: { x: ifBlock.position.x + 50, y: selectedNode.position.y + 100 }, data: null
+        };
+        addNode(ifBlock);
+        addNode(thenBlock);
+        addNode(elseBlock);
+        addEdge({ id: 'e' + selectedNodeId + '-' + ifBlockId, source: selectedNodeId, target: ifBlockId })
+        addEdge({ id: 'e' + selectedNodeId + '-' + elseBlockId, source: selectedNodeId, target: elseBlockId })
+        addEdge({ id: 'e' + ifBlockId + '-' + thenBlockId, source: ifBlockId, target: thenBlockId })
+        setSelectedNodeId(selectedNodeId + 4)
+        break
+      }
+
+      case (BlockType.FAIL) : {
+        const failBlockId: number = selectedNodeId + 1;
+        const failBlock = {
+          id: failBlockId,
+          type: 'failBlock',
+          position: { x: selectedNode.position.x + 150, y: selectedNode.position.y }, data: null
+        };
+        addNode(failBlock);
+        addEdge({ id: 'e' + selectedNodeId + '-' + failBlock, source: selectedNodeId, target: failBlockId })
+        addEdge({ id: 'e' + failBlockId + '-' + '2', source: failBlockId, target: '2' })
+        break
+      }
+
+      case (BlockType.PASS) : {
+        const passBlockId: number = selectedNodeId + 1;
+        const passBlock = {
+          id: passBlockId,
+          type: 'passBlock',
+          position: { x: selectedNode.position.x + 150, y: selectedNode.position.y }, data: null
+        };
+        addNode(passBlock);
+        addEdge({ id: 'e' + selectedNodeId + '-' + passBlock, source: selectedNodeId, target: passBlockId })
+        addEdge({ id: 'e' + passBlockId + '-' + '2', source: passBlockId, target: '2' })
+        break
+      }
+    }
+
   };
 
   return (
