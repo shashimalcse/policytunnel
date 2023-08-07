@@ -14,8 +14,8 @@ import {
 } from 'reactflow';
 
 const initialNodes: Node[] = [
-    { id: '1', type: 'startBlock', position: { x: 100, y: 150 }, data: null },
-    { id: '2', type: 'endBlock', position: { x: 950, y: 150 }, data: null },
+    { id: '0', type: 'startBlock', position: { x: 100, y: 150 }, data: null },
+    { id: '10000', type: 'endBlock', position: { x: 950, y: 150 }, data: null },
 ];
 const initialEdges: Edge[] = [];
 

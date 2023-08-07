@@ -51,41 +51,50 @@ const edgeOptions = {
 function App() {
 
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, addEdge, removeNode } = useStore(selector, shallow);
-  const [selectedNodeId, setSelectedNodeId] = useState<any>(1);
   const [selectedNode, setSelectedNode] = useState<any>();
+
+  const removeNodeandEdges = (id :number) => {
+    removeNode(id.toString())
+    removeNode((id+1).toString())
+    removeNode((id+2).toString())
+  }
 
   const addConditionalBlock = (blockType: BlockType) => {
     if (!selectedNode) {
       return
     }
+    const selectedNodeId: number = +selectedNode.id
     switch (blockType) {
       case (BlockType.CONDITIONAL) : {
         if(selectedNode.type == 'thenBlock' || selectedNode.type == 'elseBlock' || selectedNode.type == 'startBlock') {
           const ifBlockId: number = selectedNodeId + 1;
           const ifBlock = {
-            id: ifBlockId,
+            id: ifBlockId.toString(),
             type: 'ifBlock',
-            position: { x: selectedNode.position.x + 150, y: selectedNode.position.y - 200 }, data: null
+            position: { x: selectedNode.position.x + 150, y: selectedNode.position.y - 200 }, data: {
+              remove : removeNodeandEdges
+            }
           };
-          const thenBlockId: number = selectedNodeId + 2;
+          const thenBlockId: number = ifBlockId + 1;
           const thenBlock = {
-            id: thenBlockId,
+            id: thenBlockId.toString(),
             type: 'thenBlock',
             position: { x: ifBlock.position.x + 300, y: ifBlock.position.y + 100 }, data: null
           };
-          const elseBlockId: number = selectedNodeId + 3;
+          const elseBlockId: number = thenBlockId + 1;
           const elseBlock = {
-            id: elseBlockId,
+            id: elseBlockId.toString(),
             type: 'elseBlock',
             position: { x: ifBlock.position.x + 50, y: selectedNode.position.y + 100 }, data: null
           };
+          console.log(ifBlock,thenBlock,elseBlock)
           addNode(ifBlock);
           addNode(thenBlock);
           addNode(elseBlock);
-          addEdge({ id: 'e' + selectedNodeId + '-' + ifBlockId, source: selectedNodeId, target: ifBlockId })
-          addEdge({ id: 'e' + selectedNodeId + '-' + elseBlockId, source: selectedNodeId, target: elseBlockId })
-          addEdge({ id: 'e' + ifBlockId + '-' + thenBlockId, source: ifBlockId, target: thenBlockId })
-          setSelectedNodeId(selectedNodeId + 4)
+          addEdge({ id: 'e' + selectedNodeId.toString() + '-' + ifBlockId.toString(), source: selectedNodeId.toString(), target: ifBlockId.toString() })
+          addEdge({ id: 'e' + selectedNodeId.toString() + '-' + elseBlockId.toString(), source: selectedNodeId.toString(), target: elseBlockId.toString() })
+          addEdge({ id: 'e' + ifBlockId.toString() + '-' + thenBlockId.toString(), source: ifBlockId.toString(), target: thenBlockId.toString() })
+          setSelectedNode(null)
         }
         break
       }
@@ -130,7 +139,6 @@ function App() {
           <ReactFlow className="bg-gray-200" nodes={nodes} edges={edges} nodeTypes={nodeTypes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} defaultEdgeOptions={edgeOptions}   onNodeClick={(event, node) => {
           if (node?.id) {
             setSelectedNode(node)
-            setSelectedNodeId(node.id)
           }
         }}>
             <Background variant={BackgroundVariant.Dots} />

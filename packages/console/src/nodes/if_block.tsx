@@ -5,6 +5,7 @@ import { Handle, NodeProps, Position } from 'reactflow';
 import useStore from '../store';
 
 type IfBlockData = {
+  remove: (id:number) => void
 };
 
 const IfBlock = ({id, data}: NodeProps<IfBlockData>) => {
@@ -22,7 +23,7 @@ const IfBlock = ({id, data}: NodeProps<IfBlockData>) => {
       />
       <div className='flex flex-col items-center'>
         {actionSelected ? <div className="h-10 w-full mb-2 bg-gray-600 rounded-md shadow-md p-3 flex flex-row items-center justify-end text-xs">
-          <div className="relative w-8 flex justify-center items-center rounded" onClick={() => removeNode(id)}>
+          <div className="relative w-8 flex justify-center items-center rounded" onClick={() => data.remove(+id)}>
             <div className="absolute w-full h-full bg-gray-400 rounded-sm opacity-0 hover:opacity-20"></div>
             <DeleteOutlineIcon className="text-white" />
           </div>
