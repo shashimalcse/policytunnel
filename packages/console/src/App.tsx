@@ -48,15 +48,128 @@ const edgeOptions = {
   },
 };
 
+class Graph {
+  public nodes: Node[] = [];
+  public nextNodeId: number = 1;
+
+  constructor() {
+    // Create initial start and end nodes
+    const startNode: Node = {
+      id: this.nextNodeId,
+      type: 'startBlock',
+      connectedNodeIds: []
+    };
+    this.nextNodeId++;
+    const endNode: Node = {
+      id: this.nextNodeId,
+      type: 'endBlock',
+      connectedNodeIds: []
+    };
+    this.nextNodeId++;
+
+    this.nodes.push(startNode, endNode);
+  }
+
+  addNode(type: string): number {
+    const newNode: Node = {
+      id: this.nextNodeId,
+      type: type,
+      connectedNodeIds: []
+    };
+    this.nodes.push(newNode);
+    this.nextNodeId++;
+    console.log(this.nextNodeId)
+    return newNode.id;
+  }
+
+  deleteNode(nodeId: number): void {
+    const nodeToDelete = this.nodes.find(node => node.id === nodeId);
+
+    if (!nodeToDelete) {
+      console.log("Node not found");
+      return;
+    }
+
+    const nodesToDelete: number[] = [nodeId];
+    const stack: number[] = [nodeId];
+
+    while (stack.length > 0) {
+      const currentId = stack.pop()!;
+      const currentNode = this.nodes.find(node => node.id === currentId)!;
+
+      nodesToDelete.push(...currentNode.connectedNodeIds);
+
+      stack.push(...currentNode.connectedNodeIds);
+    }
+
+    this.nodes = this.nodes.filter(node => !nodesToDelete.includes(node.id));
+  }
+
+  connectNodes(fromNodeId: number, toNodeId: number): void {
+    const fromNode = this.nodes.find(node => node.id === fromNodeId);
+    const toNode = this.nodes.find(node => node.id === toNodeId);
+
+    if (!fromNode || !toNode) {
+      console.log("Invalid node IDs");
+      return;
+    }
+
+    fromNode.connectedNodeIds.push(toNodeId);
+  }
+
+  addChildNode(parentNodeId: number, type: string): number {
+    const parentNode = this.nodes.find(node => node.id === parentNodeId);
+
+    if (!parentNode) {
+      console.log("Parent node not found");
+      return -1;
+    }
+
+    const childNodeId = this.addNode(type);
+    this.connectNodes(parentNodeId, childNodeId);
+
+    return childNodeId;
+  }
+}
+
+interface Node {
+  id: number;
+  type: string;
+  connectedNodeIds: number[];
+}
+
 function App() {
+
+  const [graph, setGraph] = useState(new Graph());
+
+  const handleAddChildNode = (parentNodeId: number, type: string) : number => {
+    const newChildNodeId = graph.addChildNode(parentNodeId, type);
+    setGraph(prevGraph => {
+      const newGraph = new Graph();
+      newGraph.nodes = [...prevGraph.nodes]; 
+      newGraph.nextNodeId = (newGraph.nodes).length + 1;
+      return newGraph;
+    });
+    return newChildNodeId;
+  };
+
+  // const handleDeleteNode = (nodeId: number) => {
+  //   console.log(nodeId)
+  //   graph.deleteNode(nodeId);
+  //   setGraph(prevGraph => {
+  //     const newGraph = new Graph();
+  //     newGraph.nodes = [...prevGraph.nodes]; // Copy existing nodes
+  //     newGraph.nextNodeId = (newGraph.nodes).length + 1;
+  //     return newGraph;
+  //   });
+  // };
+
 
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, addEdge, removeNode } = useStore(selector, shallow);
   const [selectedNode, setSelectedNode] = useState<any>();
 
   const removeNodeandEdges = (id :number) => {
-    removeNode(id.toString())
-    removeNode((id+1).toString())
-    removeNode((id+2).toString())
+    return
   }
 
   const addConditionalBlock = (blockType: BlockType) => {
@@ -64,10 +177,11 @@ function App() {
       return
     }
     const selectedNodeId: number = +selectedNode.id
+    console.log(typeof selectedNodeId)
     switch (blockType) {
       case (BlockType.CONDITIONAL) : {
         if(selectedNode.type == 'thenBlock' || selectedNode.type == 'elseBlock' || selectedNode.type == 'startBlock') {
-          const ifBlockId: number = selectedNodeId + 1;
+          const ifBlockId = handleAddChildNode(selectedNodeId, 'ifBlock');
           const ifBlock = {
             id: ifBlockId.toString(),
             type: 'ifBlock',
@@ -75,13 +189,13 @@ function App() {
               remove : removeNodeandEdges
             }
           };
-          const thenBlockId: number = ifBlockId + 1;
+          const thenBlockId: number = handleAddChildNode(ifBlockId, 'thenBlock');
           const thenBlock = {
             id: thenBlockId.toString(),
             type: 'thenBlock',
             position: { x: ifBlock.position.x + 300, y: ifBlock.position.y + 100 }, data: null
           };
-          const elseBlockId: number = thenBlockId + 1;
+          const elseBlockId: number = handleAddChildNode(selectedNodeId, 'elseBlock');
           const elseBlock = {
             id: elseBlockId.toString(),
             type: 'elseBlock',
@@ -129,6 +243,7 @@ function App() {
         break
       }
     }
+    console.log(graph)
     setSelectedNode(null)
   };
 
