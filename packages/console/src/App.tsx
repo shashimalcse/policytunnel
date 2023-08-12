@@ -70,6 +70,11 @@ class Graph {
     this.nodes.push(startNode, endNode);
   }
 
+  getNode(id: number): Node | undefined {
+
+    return this.nodes.find(node => node.id === id);
+  };
+
   addNode(type: string): number {
     const newNode: Node = {
       id: this.nextNodeId,
@@ -152,23 +157,34 @@ function App() {
     return newChildNodeId;
   };
 
-  // const handleDeleteNode = (nodeId: number) => {
-  //   console.log(nodeId)
-  //   graph.deleteNode(nodeId);
-  //   setGraph(prevGraph => {
-  //     const newGraph = new Graph();
-  //     newGraph.nodes = [...prevGraph.nodes]; // Copy existing nodes
-  //     newGraph.nextNodeId = (newGraph.nodes).length + 1;
-  //     return newGraph;
-  //   });
-  // };
+  const handleDeleteNode = (nodeId: number) => {
+    graph.deleteNode(nodeId);
+    setGraph(prevGraph => {
+      const newGraph = new Graph();
+      newGraph.nodes = [...prevGraph.nodes]; // Copy existing nodes
+      newGraph.nextNodeId = prevGraph.nodes.length + 1;
+      return newGraph;
+    });
+    console.log(graph)
+  };
 
 
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, addEdge, removeNode } = useStore(selector, shallow);
   const [selectedNode, setSelectedNode] = useState<any>();
 
   const removeNodeandEdges = (id :number) => {
-    return
+    const node = graph.getNode(id)
+    if (node) {
+      removeNode(id.toString())
+      handleDeleteNode(id)
+      if (node.type == "ifBlock") {
+        removeNode((id+1).toString())
+        removeNode((id+2).toString())
+        handleDeleteNode(id+2)
+      }
+    } else {
+      console.log("Node not found!")
+    }
   }
 
   const addConditionalBlock = (blockType: BlockType) => {
