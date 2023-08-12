@@ -78,7 +78,6 @@ class Graph {
     };
     this.nodes.push(newNode);
     this.nextNodeId++;
-    console.log(this.nextNodeId)
     return newNode.id;
   }
 
@@ -177,7 +176,6 @@ function App() {
       return
     }
     const selectedNodeId: number = +selectedNode.id
-    console.log(typeof selectedNodeId)
     switch (blockType) {
       case (BlockType.CONDITIONAL) : {
         if(selectedNode.type == 'thenBlock' || selectedNode.type == 'elseBlock' || selectedNode.type == 'startBlock') {
@@ -201,49 +199,46 @@ function App() {
             type: 'elseBlock',
             position: { x: ifBlock.position.x + 50, y: selectedNode.position.y + 100 }, data: null
           };
-          console.log(ifBlock,thenBlock,elseBlock)
           addNode(ifBlock);
           addNode(thenBlock);
           addNode(elseBlock);
           addEdge({ id: 'e' + selectedNodeId.toString() + '-' + ifBlockId.toString(), source: selectedNodeId.toString(), target: ifBlockId.toString() })
           addEdge({ id: 'e' + selectedNodeId.toString() + '-' + elseBlockId.toString(), source: selectedNodeId.toString(), target: elseBlockId.toString() })
           addEdge({ id: 'e' + ifBlockId.toString() + '-' + thenBlockId.toString(), source: ifBlockId.toString(), target: thenBlockId.toString() })
-          setSelectedNode(null)
         }
         break
       }
 
       case (BlockType.FAIL) : {
         if(selectedNode.type == 'thenBlock' || selectedNode.type == 'elseBlock') {
-          const failBlockId: number = selectedNodeId + 1;
+          const failBlockId: number = handleAddChildNode(selectedNodeId, 'failBlock');
           const failBlock = {
-            id: failBlockId,
+            id: failBlockId.toString(),
             type: 'failBlock',
             position: { x: selectedNode.position.x + 150, y: selectedNode.position.y }, data: null
           };
           addNode(failBlock);
-          addEdge({ id: 'e' + selectedNodeId + '-' + failBlock, source: selectedNodeId, target: failBlockId })
-          addEdge({ id: 'e' + failBlockId + '-' + '2', source: failBlockId, target: '2' })
+          addEdge({ id: 'e' + selectedNodeId.toString() + '-' + failBlockId.toString(), source: selectedNodeId.toString(), target: failBlockId.toString() })
+          addEdge({ id: 'e' + failBlockId.toString() + '-' + '2', source: failBlockId.toString(), target: '2' })
         }
         break
       }
 
       case (BlockType.PASS) : {
         if(selectedNode.type == 'thenBlock' || selectedNode.type == 'elseBlock') {
-          const passBlockId: number = selectedNodeId + 1;
+          const passBlockId: number = handleAddChildNode(selectedNodeId, 'passBlock');
           const passBlock = {
-            id: passBlockId,
+            id: passBlockId.toString(),
             type: 'passBlock',
             position: { x: selectedNode.position.x + 150, y: selectedNode.position.y }, data: null
           };
           addNode(passBlock);
-          addEdge({ id: 'e' + selectedNodeId + '-' + passBlock, source: selectedNodeId, target: passBlockId })
-          addEdge({ id: 'e' + passBlockId + '-' + '2', source: passBlockId, target: '2' })
+          addEdge({ id: 'e' + selectedNodeId.toString() + '-' + passBlockId, source: selectedNodeId.toString(), target: passBlockId.toString() })
+          addEdge({ id: 'e' + passBlockId.toString() + '-' + '2', source: passBlockId.toString(), target: '2' })
         }
         break
       }
     }
-    console.log(graph)
     setSelectedNode(null)
   };
 
