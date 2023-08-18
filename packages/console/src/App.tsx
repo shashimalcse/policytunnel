@@ -165,7 +165,6 @@ function App() {
       newGraph.nextNodeId = prevGraph.nodes.length + 1;
       return newGraph;
     });
-    console.log(graph)
   };
 
 
@@ -178,9 +177,7 @@ function App() {
       removeNode(id.toString())
       handleDeleteNode(id)
       if (node.type == "ifBlock") {
-        removeNode((id+1).toString())
-        removeNode((id+2).toString())
-        handleDeleteNode(id+2)
+        removeNodeandEdges(id+2)
       }
     } else {
       console.log("Node not found!")
