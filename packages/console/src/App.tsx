@@ -148,23 +148,19 @@ function App() {
 
   const handleAddChildNode = (parentNodeId: number, type: string) : number => {
     const newChildNodeId = graph.addChildNode(parentNodeId, type);
-    setGraph(prevGraph => {
-      const newGraph = new Graph();
-      newGraph.nodes = [...prevGraph.nodes]; 
-      newGraph.nextNodeId = (newGraph.nodes).length + 1;
-      return newGraph;
-    });
+    const newGraph = new Graph();
+    newGraph.nodes = graph.nodes;
+    newGraph.nextNodeId = graph.nextNodeId
+    setGraph(newGraph);
     return newChildNodeId;
   };
 
   const handleDeleteNode = (nodeId: number) => {
     graph.deleteNode(nodeId);
-    setGraph(prevGraph => {
-      const newGraph = new Graph();
-      newGraph.nodes = [...prevGraph.nodes]; // Copy existing nodes
-      newGraph.nextNodeId = prevGraph.nodes.length + 1;
-      return newGraph;
-    });
+    const newGraph = new Graph();
+    newGraph.nodes = graph.nodes;
+    newGraph.nextNodeId = graph.nextNodeId
+    setGraph(newGraph);
   };
 
 
