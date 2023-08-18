@@ -174,7 +174,23 @@ function App() {
   const removeNodeandEdges = (id :number) => {
     const node = graph.getNode(id)
     if (node) {
-      removeNode(id.toString())
+  
+      const nodesToDelete: number[] = [node.id];
+      const stack: number[] = [node.id];
+  
+      while (stack.length > 0) {
+        const currentId = stack.pop()!;
+        const currentNode = graph.nodes.find(node => node.id === currentId)!;
+  
+        nodesToDelete.push(...currentNode.connectedNodeIds);
+  
+        stack.push(...currentNode.connectedNodeIds);
+      }
+
+      for (var nodeId of nodesToDelete) {
+        removeNode(nodeId.toString())
+      }
+      
       handleDeleteNode(id)
       if (node.type == "ifBlock") {
         removeNodeandEdges(id+2)
@@ -246,7 +262,7 @@ function App() {
             position: { x: selectedNode.position.x + 150, y: selectedNode.position.y }, data: null
           };
           addNode(passBlock);
-          addEdge({ id: 'e' + selectedNodeId.toString() + '-' + passBlockId, source: selectedNodeId.toString(), target: passBlockId.toString() })
+          addEdge({ id: 'e' + selectedNodeId.toString() + '-' + passBlockId.toString(), source: selectedNodeId.toString(), target: passBlockId.toString() })
           addEdge({ id: 'e' + passBlockId.toString() + '-' + '2', source: passBlockId.toString(), target: '2' })
         }
         break
