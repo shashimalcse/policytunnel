@@ -1,13 +1,10 @@
 import ReactFlow, {
   Background, MiniMap,
-  Controls, BackgroundVariant, ReactFlowProvider
-} from 'reactflow';
+  Controls, BackgroundVariant} from 'reactflow';
 import { shallow } from 'zustand/shallow';
-import { CodeBlock } from "react-code-blocks";
-import { PathType, getRegoPolicy } from "@policytunnel/core/src/policy_handler/convertor";
 import './App.css'
 import 'reactflow/dist/style.css';
-import { useState, useCallback, useEffect } from 'react';
+import { useState } from 'react';
 import IfBlock from './nodes/if_block';
 import StartBlock from './nodes/start_block';
 import EndBlock from './nodes/end_block';
@@ -15,7 +12,6 @@ import ElseBlock from './nodes/else_block';
 import ThenBlock from './nodes/then_block';
 import PassBlock from './nodes/pass_block';
 import FailBlock from './nodes/fail_block';
-import {BlockType} from './components/action_bar';
 import ActionBar from './components/action_bar';
 
 const nodeTypes = {
@@ -29,6 +25,8 @@ const nodeTypes = {
 };
 
 import useStore from './store';
+import Graph from './graph';
+import { BlockType } from './constants/block_types';
 
 const selector = (state: { nodes: any; edges: any; onNodesChange: any; onEdgesChange: any; onConnect: any; addNode: any; addEdge: any; removeNode:any }) => ({
   nodes: state.nodes,
@@ -48,105 +46,18 @@ const edgeOptions = {
   },
 };
 
-class Graph {
-  public nodes: Node[] = [];
-  public nextNodeId: number = 1;
-
-  constructor() {
-    // Create initial start and end nodes
-    const startNode: Node = {
-      id: this.nextNodeId,
-      type: 'startBlock',
-      connectedNodeIds: []
-    };
-    this.nextNodeId++;
-    const endNode: Node = {
-      id: this.nextNodeId,
-      type: 'endBlock',
-      connectedNodeIds: []
-    };
-    this.nextNodeId++;
-
-    this.nodes.push(startNode, endNode);
-  }
-
-  getNode(id: number): Node | undefined {
-
-    return this.nodes.find(node => node.id === id);
-  };
-
-  addNode(type: string): number {
-    const newNode: Node = {
-      id: this.nextNodeId,
-      type: type,
-      connectedNodeIds: []
-    };
-    this.nodes.push(newNode);
-    this.nextNodeId++;
-    return newNode.id;
-  }
-
-  deleteNode(nodeId: number): void {
-    const nodeToDelete = this.nodes.find(node => node.id === nodeId);
-
-    if (!nodeToDelete) {
-      console.log("Node not found");
-      return;
-    }
-
-    const nodesToDelete: number[] = [nodeId];
-    const stack: number[] = [nodeId];
-
-    while (stack.length > 0) {
-      const currentId = stack.pop()!;
-      const currentNode = this.nodes.find(node => node.id === currentId)!;
-
-      nodesToDelete.push(...currentNode.connectedNodeIds);
-
-      stack.push(...currentNode.connectedNodeIds);
-    }
-
-    this.nodes = this.nodes.filter(node => !nodesToDelete.includes(node.id));
-  }
-
-  connectNodes(fromNodeId: number, toNodeId: number): void {
-    const fromNode = this.nodes.find(node => node.id === fromNodeId);
-    const toNode = this.nodes.find(node => node.id === toNodeId);
-
-    if (!fromNode || !toNode) {
-      console.log("Invalid node IDs");
-      return;
-    }
-
-    fromNode.connectedNodeIds.push(toNodeId);
-  }
-
-  addChildNode(parentNodeId: number, type: string): number {
-    const parentNode = this.nodes.find(node => node.id === parentNodeId);
-
-    if (!parentNode) {
-      console.log("Parent node not found");
-      return -1;
-    }
-
-    const childNodeId = this.addNode(type);
-    this.connectNodes(parentNodeId, childNodeId);
-
-    return childNodeId;
-  }
-}
-
-interface Node {
-  id: number;
-  type: string;
-  connectedNodeIds: number[];
-}
-
 function App() {
 
+
+  const { nodes, edges, onNodesChange, onEdgesChange, addNode, addEdge, removeNode } = useStore(selector, shallow);
+  const [selectedNode, setSelectedNode] = useState<any>();
+
+  // This is the grpah we use to keep the nodes and later we will pass this for policy generation.
   const [graph, setGraph] = useState(new Graph());
 
-  const handleAddChildNode = (parentNodeId: number, type: string) : number => {
+  // Add child node to grpah.
+  const handleAddChildNode = (parentNodeId: number, type: BlockType) : number => {
+
     const newChildNodeId = graph.addChildNode(parentNodeId, type);
     const newGraph = new Graph();
     newGraph.nodes = graph.nodes;
@@ -155,7 +66,9 @@ function App() {
     return newChildNodeId;
   };
 
+  // Delete node from graph. This will child nodes as well.
   const handleDeleteNode = (nodeId: number) => {
+
     graph.deleteNode(nodeId);
     const newGraph = new Graph();
     newGraph.nodes = graph.nodes;
@@ -163,11 +76,9 @@ function App() {
     setGraph(newGraph);
   };
 
+  // Remove nodes and edges from react flow and delete node from graph.
+  const handleRemoveNodeAndEdges = (id :number) => {
 
-  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, addEdge, removeNode } = useStore(selector, shallow);
-  const [selectedNode, setSelectedNode] = useState<any>();
-
-  const removeNodeandEdges = (id :number) => {
     const node = graph.getNode(id)
     if (node) {
   
@@ -186,10 +97,10 @@ function App() {
       for (var nodeId of nodesToDelete) {
         removeNode(nodeId.toString())
       }
-      
       handleDeleteNode(id)
+      // If node is a if block, we have to delete else block as well.
       if (node.type == "ifBlock") {
-        removeNodeandEdges(id+2)
+        handleRemoveNodeAndEdges(id+2)
       }
     } else {
       console.log("Node not found!")
@@ -202,26 +113,26 @@ function App() {
     }
     const selectedNodeId: number = +selectedNode.id
     switch (blockType) {
-      case (BlockType.CONDITIONAL) : {
-        if(selectedNode.type == 'thenBlock' || selectedNode.type == 'elseBlock' || selectedNode.type == 'startBlock') {
-          const ifBlockId = handleAddChildNode(selectedNodeId, 'ifBlock');
+      case (BlockType.IF) : {
+        if(selectedNode.type == BlockType.THEN || selectedNode.type == BlockType.ELSE || selectedNode.type == BlockType.START) {
+          const ifBlockId = handleAddChildNode(selectedNodeId, BlockType.IF);
           const ifBlock = {
             id: ifBlockId.toString(),
-            type: 'ifBlock',
+            type: BlockType.IF,
             position: { x: selectedNode.position.x + 150, y: selectedNode.position.y - 200 }, data: {
-              remove : removeNodeandEdges
+              remove : handleRemoveNodeAndEdges
             }
           };
-          const thenBlockId: number = handleAddChildNode(ifBlockId, 'thenBlock');
+          const thenBlockId: number = handleAddChildNode(ifBlockId, BlockType.THEN);
           const thenBlock = {
             id: thenBlockId.toString(),
-            type: 'thenBlock',
+            type: BlockType.THEN,
             position: { x: ifBlock.position.x + 300, y: ifBlock.position.y + 100 }, data: null
           };
-          const elseBlockId: number = handleAddChildNode(selectedNodeId, 'elseBlock');
+          const elseBlockId: number = handleAddChildNode(selectedNodeId, BlockType.ELSE);
           const elseBlock = {
             id: elseBlockId.toString(),
-            type: 'elseBlock',
+            type: BlockType.ELSE,
             position: { x: ifBlock.position.x + 50, y: selectedNode.position.y + 100 }, data: null
           };
           addNode(ifBlock);
@@ -235,11 +146,11 @@ function App() {
       }
 
       case (BlockType.FAIL) : {
-        if(selectedNode.type == 'thenBlock' || selectedNode.type == 'elseBlock') {
-          const failBlockId: number = handleAddChildNode(selectedNodeId, 'failBlock');
+        if(selectedNode.type == BlockType.THEN || selectedNode.type == BlockType.ELSE) {
+          const failBlockId: number = handleAddChildNode(selectedNodeId, BlockType.FAIL);
           const failBlock = {
             id: failBlockId.toString(),
-            type: 'failBlock',
+            type: BlockType.FAIL,
             position: { x: selectedNode.position.x + 150, y: selectedNode.position.y }, data: null
           };
           addNode(failBlock);
@@ -250,11 +161,11 @@ function App() {
       }
 
       case (BlockType.PASS) : {
-        if(selectedNode.type == 'thenBlock' || selectedNode.type == 'elseBlock') {
-          const passBlockId: number = handleAddChildNode(selectedNodeId, 'passBlock');
+        if(selectedNode.type == BlockType.THEN || selectedNode.type == BlockType.ELSE) {
+          const passBlockId: number = handleAddChildNode(selectedNodeId, BlockType.PASS);
           const passBlock = {
             id: passBlockId.toString(),
-            type: 'passBlock',
+            type: BlockType.PASS,
             position: { x: selectedNode.position.x + 150, y: selectedNode.position.y }, data: null
           };
           addNode(passBlock);
@@ -284,17 +195,6 @@ function App() {
         <div className="w-1/6 fixed top-5 left-5 bottom-40 rounded-lg bg-white">
           <ActionBar addConditionalBlock={addConditionalBlock}/>
         </div>
-        {/* <div className="w-2/6 fixed top-5 right-5 bottom-[200px] rounded-lg bg-white">
-        <button onClick={handleButtonClick}>Genarate OPA policy</button>
-        <CodeBlock
-          text={result}
-          language='javascript'
-          showLineNumbers={false}
-          startingLineNumber={10} wrapLongLines={false}
-        />
-      </div> */}
-
-        {/* Main Content */}
       </div>
   )
 }

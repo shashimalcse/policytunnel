@@ -1,11 +1,7 @@
-interface ActionBarProps {
-    addConditionalBlock: (nodeId: number) => void;
-}
+import { BlockType } from "../constants/block_types";
 
-export enum BlockType {
-    CONDITIONAL,
-    FAIL,
-    PASS
+interface ActionBarProps {
+    addConditionalBlock: (blockType: BlockType) => void;
 }
   
 const ActionBar : React.FC<ActionBarProps> = ({ addConditionalBlock }) => {
@@ -15,7 +11,7 @@ const ActionBar : React.FC<ActionBarProps> = ({ addConditionalBlock }) => {
             <div className='mt-2 text-center font-sans text-lg font-semibold'>
                     <div className=''>Nodes</div>
                 </div>
-                <button className='p-4 mx-5 mt-2 text-center items-center rounded-md border border-gray-300 drop-shadow-sm bg-white font-sans text-xs' onClick={() => addConditionalBlock(BlockType.CONDITIONAL)}>
+                <button className='p-4 mx-5 mt-2 text-center items-center rounded-md border border-gray-300 drop-shadow-sm bg-white font-sans text-xs' onClick={() => addConditionalBlock(BlockType.IF)}>
                     <div className=''>Conditional</div>
                 </button>
                 <button className='p-4 mx-5 mt-2 text-center items-center rounded-md border border-gray-300 drop-shadow-sm bg-white font-sans text-xs' onClick={() => addConditionalBlock(BlockType.PASS)}>

@@ -12,10 +12,11 @@ import {
     applyNodeChanges,
     applyEdgeChanges,
 } from 'reactflow';
+import { BlockType } from './constants/block_types';
 
 const initialNodes: Node[] = [
-    { id: '1', type: 'startBlock', position: { x: 100, y: 150 }, data: null },
-    { id: '2', type: 'endBlock', position: { x: 950, y: 150 }, data: null },
+    { id: '1', type: BlockType.START, position: { x: 100, y: 150 }, data: null },
+    { id: '2', type: BlockType. END, position: { x: 950, y: 150 }, data: null },
 ];
 const initialEdges: Edge[] = [];
 

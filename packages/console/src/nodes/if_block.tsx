@@ -2,7 +2,6 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import { useState } from 'react';
 import { Handle, NodeProps, Position } from 'reactflow';
-import useStore from '../store';
 
 type IfBlockData = {
   remove: (id:number) => void
@@ -11,7 +10,6 @@ type IfBlockData = {
 const IfBlock = ({id, data}: NodeProps<IfBlockData>) => {
 
   const [actionSelected, setActionSelected] = useState<boolean>(false);
-  const removeNode = useStore((state) => state.removeNode);
   return (
     <>
       <Handle
@@ -32,8 +30,8 @@ const IfBlock = ({id, data}: NodeProps<IfBlockData>) => {
             <CloseIcon className="text-white" />
           </div>
         </div> : null}
-        <div className="w-56 bg-white rounded-md border-2 border-gray-300 shadow-md p-3 flex flex-col items-center text-xs" onClick={() => { setActionSelected(true) }}>
-          <div className="mb-3 w-full text-center">
+        <div className="w-56 bg-white rounded-md border-2 border-gray-300 shadow-md p-3 flex flex-col items-center text-xs">
+          <div className="mb-3 w-full text-center" onClick={() => { setActionSelected(true) }}>
             If block
           </div>
 
