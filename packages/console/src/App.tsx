@@ -32,6 +32,7 @@ const nodeTypes = {
 import useStore from './store';
 import Graph from './graph';
 import { BlockType } from './constants/block_types';
+import { ControllerType } from './constants/controller';
 
 const selector = (state: { nodes: any; edges: any; onNodesChange: any; onEdgesChange: any; onConnect: any; addNode: any; addEdge: any; removeNode: any }) => ({
   nodes: state.nodes,
@@ -295,10 +296,12 @@ function App() {
 
   const [showController, setShowController] = useState(false);
 
+
   const toggleController = () => {
     setShowController((prevShowController) => !prevShowController);
   };
 
+  const [selectedControllerTab, setSelectedControllerTab] = useState<ControllerType>(ControllerType.VALIDATORS);
 
   return (
     <div>
@@ -324,20 +327,22 @@ function App() {
       {/* Controller View */}
       {showController && (
         <div className="absolute pt-10 top-6 right-6 w-1/4 bg-white shadow-lg rounded-md">
-          <div className="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
-              <ul className="flex flex-wrap -mb-px">
-                  <li className="mr-2">
-                      <a href="#" className="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Profile</a>
-                  </li>
-                  <li className="mr-2">
-                      <a href="#" className="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500" aria-current="page">Dashboard</a>
-                  </li>
-              </ul>
+          <div className="text-sm font-medium text-center text-gray-500 border-b border-gray-200">
+            <ul className="flex flex-wrap -mb-px">
+              <li className="mr-2">
+                <a href="#" className={`inline-block p-4 border-b-2 ${selectedControllerTab === ControllerType.VALIDATORS ? "text-blue-600 border-blue-600" : "border-transparent hover:text-gray-600 hover:border-gray-300"}`} onClick={() => {setSelectedControllerTab(ControllerType.VALIDATORS)}}>Validators</a>
+              </li>
+              <li className="mr-2">
+                <a href="#" className={`inline-block p-4 border-b-2 ${selectedControllerTab === ControllerType.INPUT ? "text-blue-600 border-blue-600" : "border-transparent hover:text-gray-600 hover:border-gray-300"}`} onClick={() => {setSelectedControllerTab(ControllerType.INPUT)}}>Input</a>
+              </li>
+            </ul>
           </div>
+          {selectedControllerTab === ControllerType.VALIDATORS ? (
           <div className="pb-2 rounded-lg bg-white">
-            <ActionBar addConditionalBlock={addConditionalBlock} />
-          </div>
-          <div className="rounded-lg bg-white">
+          <ActionBar addConditionalBlock={addConditionalBlock} />
+        </div>
+          ) : selectedControllerTab === ControllerType.INPUT ? (
+            <div className="rounded-lg bg-white">
             <Editor
               height="50vh"
               defaultLanguage="json"
@@ -345,6 +350,7 @@ function App() {
               onMount={handleEditorDidMount}
               onChange={handleEditorChange}
               onValidate={handleEditorValidation}
+              loading={true}
             />
             <button
               className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
@@ -353,6 +359,9 @@ function App() {
               Submit
             </button>
           </div>
+          ) : (
+            null
+          )}
         </div>
 
       )}
