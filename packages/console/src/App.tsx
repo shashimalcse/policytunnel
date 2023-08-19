@@ -1,6 +1,7 @@
 import ReactFlow, {
   Background, MiniMap,
-  Controls, BackgroundVariant} from 'reactflow';
+  Controls, BackgroundVariant
+} from 'reactflow';
 import { shallow } from 'zustand/shallow';
 import './App.css'
 import 'reactflow/dist/style.css';
@@ -15,6 +16,8 @@ import FailBlock from './nodes/fail_block';
 import ActionBar from './components/action_bar';
 import { ExtractAttributesFromInput } from "@policytunnel/shared/src/input_processor/input_loader";
 import Editor from '@monaco-editor/react'
+import CloseIcon from '@mui/icons-material/Close';
+import TableChartOutlinedIcon from '@mui/icons-material/TableChartOutlined';
 
 const nodeTypes = {
   ifBlock: IfBlock,
@@ -30,7 +33,7 @@ import useStore from './store';
 import Graph from './graph';
 import { BlockType } from './constants/block_types';
 
-const selector = (state: { nodes: any; edges: any; onNodesChange: any; onEdgesChange: any; onConnect: any; addNode: any; addEdge: any; removeNode:any }) => ({
+const selector = (state: { nodes: any; edges: any; onNodesChange: any; onEdgesChange: any; onConnect: any; addNode: any; addEdge: any; removeNode: any }) => ({
   nodes: state.nodes,
   edges: state.edges,
   onNodesChange: state.onNodesChange,
@@ -143,7 +146,7 @@ function App() {
   const [graph, setGraph] = useState(new Graph());
 
   // Add child node to grpah.
-  const handleAddChildNode = (parentNodeId: number, type: BlockType) : number => {
+  const handleAddChildNode = (parentNodeId: number, type: BlockType): number => {
 
     const newChildNodeId = graph.addChildNode(parentNodeId, type);
     const newGraph = new Graph();
@@ -164,20 +167,20 @@ function App() {
   };
 
   // Remove nodes and edges from react flow and delete node from graph.
-  const handleRemoveNodeAndEdges = (id :number) => {
+  const handleRemoveNodeAndEdges = (id: number) => {
 
     const node = graph.getNode(id)
     if (node) {
-  
+
       const nodesToDelete: number[] = [node.id];
       const stack: number[] = [node.id];
-  
+
       while (stack.length > 0) {
         const currentId = stack.pop()!;
         const currentNode = graph.nodes.find(node => node.id === currentId)!;
-  
+
         nodesToDelete.push(...currentNode.connectedNodeIds);
-  
+
         stack.push(...currentNode.connectedNodeIds);
       }
 
@@ -187,7 +190,7 @@ function App() {
       handleDeleteNode(id)
       // If node is a if block, we have to delete else block as well.
       if (node.type == "ifBlock") {
-        handleRemoveNodeAndEdges(id+2)
+        handleRemoveNodeAndEdges(id + 2)
       }
     } else {
       console.log("Node not found!")
@@ -201,15 +204,15 @@ function App() {
     }
     const selectedNodeId: number = +selectedNode.id
     switch (blockType) {
-      case (BlockType.IF) : {
-        if(selectedNode.type == BlockType.THEN || selectedNode.type == BlockType.ELSE || selectedNode.type == BlockType.START) {
+      case (BlockType.IF): {
+        if (selectedNode.type == BlockType.THEN || selectedNode.type == BlockType.ELSE || selectedNode.type == BlockType.START) {
           const ifBlockId = handleAddChildNode(selectedNodeId, BlockType.IF);
           const ifBlock = {
             id: ifBlockId.toString(),
             type: BlockType.IF,
-            position: { x: selectedNode.position.x + 150, y: selectedNode.position.y - 100}, data: {
-              remove : handleRemoveNodeAndEdges,
-              attributes : attributesArray
+            position: { x: selectedNode.position.x + 150, y: selectedNode.position.y - 100 }, data: {
+              remove: handleRemoveNodeAndEdges,
+              attributes: attributesArray
             }
           };
           const thenBlockId: number = handleAddChildNode(ifBlockId, BlockType.THEN);
@@ -234,8 +237,8 @@ function App() {
         break
       }
 
-      case (BlockType.FAIL) : {
-        if(selectedNode.type == BlockType.THEN || selectedNode.type == BlockType.ELSE) {
+      case (BlockType.FAIL): {
+        if (selectedNode.type == BlockType.THEN || selectedNode.type == BlockType.ELSE) {
           const failBlockId: number = handleAddChildNode(selectedNodeId, BlockType.FAIL);
           const failBlock = {
             id: failBlockId.toString(),
@@ -249,8 +252,8 @@ function App() {
         break
       }
 
-      case (BlockType.PASS) : {
-        if(selectedNode.type == BlockType.THEN || selectedNode.type == BlockType.ELSE) {
+      case (BlockType.PASS): {
+        if (selectedNode.type == BlockType.THEN || selectedNode.type == BlockType.ELSE) {
           const passBlockId: number = handleAddChildNode(selectedNodeId, BlockType.PASS);
           const passBlock = {
             id: passBlockId.toString(),
@@ -273,12 +276,12 @@ function App() {
     editorRef.current = editor;
   }
 
-  function handleEditorChange(value : any, event:any) {
+  function handleEditorChange(value: any, event: any) {
     setInputEditorValue(value);
   }
 
-  function handleEditorValidation(markers:any) {
-    
+  function handleEditorValidation(markers: any) {
+
     if (markers.length === 0) {
       setInputValidated(true);
     } else {
@@ -290,35 +293,70 @@ function App() {
     console.log(inputValidated)
   }
 
-  return (
-      <div>
+  const [showController, setShowController] = useState(false);
 
-        <div className="h-screen w-screen flex justify-center items-center">
-          <ReactFlow className="bg-gray-200" nodes={nodes} edges={edges} nodeTypes={nodeTypes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} defaultEdgeOptions={edgeOptions}   onNodeClick={(event, node) => {
+  const toggleController = () => {
+    setShowController((prevShowController) => !prevShowController);
+  };
+
+
+  return (
+    <div>
+
+      <div className="h-screen w-screen flex justify-center items-center">
+        <ReactFlow className="bg-gray-200" nodes={nodes} edges={edges} nodeTypes={nodeTypes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} defaultEdgeOptions={edgeOptions} onNodeClick={(event, node) => {
           if (node?.id) {
             setSelectedNode(node)
           }
         }}>
-            <Background variant={BackgroundVariant.Dots} />
-            <Controls />
-            <MiniMap />
-          </ReactFlow>
-        </div>
-        <div className="w-1/6 fixed top-5 left-5 bottom-40 rounded-lg bg-white">
-          <ActionBar addConditionalBlock={addConditionalBlock}/>
-        </div>
-        <div className="w-2/6 fixed top-5 right-5 bottom-40 rounded-lg bg-white">
-          <Editor
-            height="50vh"
-            defaultLanguage="json"
-            defaultValue={initialInput}
-            onMount={handleEditorDidMount}
-            onChange={handleEditorChange}
-            onValidate={handleEditorValidation}
-          />
-          <button onClick={handleInputSubmit}>Submit</button>
-        </div>
+          <Background variant={BackgroundVariant.Dots} />
+          <Controls />
+          <MiniMap />
+        </ReactFlow>
       </div>
+      <button
+        className="absolute flex justify-center items-center w-9 h-9 top-8 right-8 bg-gray-50 z-10 border-2 border-gray-400 px-4 py-2 rounded"
+        onClick={toggleController}
+      >
+        {showController ? <CloseIcon className="text-gray-600" /> : <TableChartOutlinedIcon className="text-gray-600" />}
+      </button>
+
+      {/* Controller View */}
+      {showController && (
+        <div className="absolute pt-10 top-6 right-6 w-1/4 bg-white shadow-lg rounded-md">
+          <div className="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
+              <ul className="flex flex-wrap -mb-px">
+                  <li className="mr-2">
+                      <a href="#" className="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Profile</a>
+                  </li>
+                  <li className="mr-2">
+                      <a href="#" className="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500" aria-current="page">Dashboard</a>
+                  </li>
+              </ul>
+          </div>
+          <div className="pb-2 rounded-lg bg-white">
+            <ActionBar addConditionalBlock={addConditionalBlock} />
+          </div>
+          <div className="rounded-lg bg-white">
+            <Editor
+              height="50vh"
+              defaultLanguage="json"
+              defaultValue={initialInput}
+              onMount={handleEditorDidMount}
+              onChange={handleEditorChange}
+              onValidate={handleEditorValidation}
+            />
+            <button
+              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+              onClick={handleInputSubmit}
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+
+      )}
+    </div>
   )
 }
 

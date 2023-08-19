@@ -16,8 +16,6 @@ interface OperatorOption {
 
 const IfBlock = ({id, data}: NodeProps<IfBlockData>) => {
 
-  console.log(data.attributes)
-
   const operatorOptions: OperatorOption[] = [
     { value: 'equal', label: 'Equal' },
     { value: 'notEqual', label: 'Not Equal' },
