@@ -50,7 +50,7 @@ const edgeOptions = {
 
 function App() {
 
-  const input = `{
+  const initialInput = `{
     "authn_ctx": {
       "scp": [
         "openid",
@@ -131,10 +131,13 @@ function App() {
     }
   }`
 
-  const attributesArray = ExtractAttributesFromInput(input);
+  const attributesArray = ExtractAttributesFromInput(initialInput);
 
   const { nodes, edges, onNodesChange, onEdgesChange, addNode, addEdge, removeNode } = useStore(selector, shallow);
   const [selectedNode, setSelectedNode] = useState<any>();
+  const [input, setInput] = useState<string>(initialInput);
+  const [inputEditorValue, setInputEditorValue] = useState<string>(initialInput);
+  const [inputValidated, setInputValidated] = useState<boolean>(true);
 
   // This is the grpah we use to keep the nodes and later we will pass this for policy generation.
   const [graph, setGraph] = useState(new Graph());
@@ -191,6 +194,7 @@ function App() {
     }
   }
 
+  // Add Conditional blocks (IF, FAIL, PASS)
   const addConditionalBlock = (blockType: BlockType) => {
     if (!selectedNode) {
       return
@@ -269,6 +273,23 @@ function App() {
     editorRef.current = editor;
   }
 
+  function handleEditorChange(value : any, event:any) {
+    setInputEditorValue(value);
+  }
+
+  function handleEditorValidation(markers:any) {
+    
+    if (markers.length === 0) {
+      setInputValidated(true);
+    } else {
+      setInputValidated(false);
+    }
+  }
+
+  function handleInputSubmit() {
+    console.log(inputValidated)
+  }
+
   return (
       <div>
 
@@ -286,13 +307,16 @@ function App() {
         <div className="w-1/6 fixed top-5 left-5 bottom-40 rounded-lg bg-white">
           <ActionBar addConditionalBlock={addConditionalBlock}/>
         </div>
-        <div className="w-1/6 fixed top-5 right-5 bottom-40 rounded-lg bg-white">
+        <div className="w-2/6 fixed top-5 right-5 bottom-40 rounded-lg bg-white">
           <Editor
-            height="90vh"
+            height="50vh"
             defaultLanguage="json"
-            defaultValue="// some comment"
+            defaultValue={initialInput}
             onMount={handleEditorDidMount}
-        />
+            onChange={handleEditorChange}
+            onValidate={handleEditorValidation}
+          />
+          <button onClick={handleInputSubmit}>Submit</button>
         </div>
       </div>
   )
