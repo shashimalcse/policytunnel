@@ -4,7 +4,7 @@ import ReactFlow, {
 import { shallow } from 'zustand/shallow';
 import './App.css'
 import 'reactflow/dist/style.css';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import IfBlock from './nodes/if_block';
 import StartBlock from './nodes/start_block';
 import EndBlock from './nodes/end_block';
@@ -13,6 +13,8 @@ import ThenBlock from './nodes/then_block';
 import PassBlock from './nodes/pass_block';
 import FailBlock from './nodes/fail_block';
 import ActionBar from './components/action_bar';
+import { ExtractAttributesFromInput } from "@policytunnel/shared/src/input_processor/input_loader";
+import Editor from '@monaco-editor/react'
 
 const nodeTypes = {
   ifBlock: IfBlock,
@@ -48,6 +50,88 @@ const edgeOptions = {
 
 function App() {
 
+  const input = `{
+    "authn_ctx": {
+      "scp": [
+        "openid",
+        "profile",
+        "email",
+        "sample_service:read"
+      ],
+      "sub": "joe",
+      "idp_id": "4abc18656e1d79589b6a6ba8afcb350a02623c6f5d39f43c3bcc47b697e92538",
+      "groups": [
+        "admins",
+        "users"
+      ],
+      "email": "testjoe@cloudentity.com",
+      "email_verified": true,
+      "phone_number": "+1-555-6616-899",
+      "phone_number_verified": "+1-555-6616-899",
+      "address": {
+        "formatted": "",
+        "street_address": "1463  Perry Street",
+        "locality": "Dayton",
+        "region": "Kentucky",
+        "country": "US",
+        "postal_code": "41074"
+      },
+      "name": "Joe Test",
+      "given_name": "Joe",
+      "middle_name": "",
+      "family_name": "Test",
+      "nickname": "joe",
+      "preferred_username": "testjoe",
+      "profile": "",
+      "picture": "",
+      "website": "",
+      "gender": "male",
+      "birthdate": "1960-10-09",
+      "zoneinfo": "",
+      "locale": "",
+      "updated_at": ""
+    },
+    "contexts": {
+      "scopes": {
+        "users.*": [
+          {
+            "params": [
+              "joe"
+            ],
+            "requested_name": "users.joe"
+          }
+        ]
+      },
+      "workspaceMetadata": {
+        "sap_id": "123456789"
+      }
+    },
+    "request": {
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ],
+        "X-Custom-Header": [
+          "BOT_DETECTED"
+        ]
+      },
+      "method": "POST",
+      "path_params": {
+        "users": "admins"
+      },
+      "query_params": {
+        "limit": [
+          "1000"
+        ],
+        "offset": [
+          "100"
+        ]
+      },
+      "path": "/doawesomethings"
+    }
+  }`
+
+  const attributesArray = ExtractAttributesFromInput(input);
 
   const { nodes, edges, onNodesChange, onEdgesChange, addNode, addEdge, removeNode } = useStore(selector, shallow);
   const [selectedNode, setSelectedNode] = useState<any>();
@@ -119,8 +203,9 @@ function App() {
           const ifBlock = {
             id: ifBlockId.toString(),
             type: BlockType.IF,
-            position: { x: selectedNode.position.x + 150, y: selectedNode.position.y - 200 }, data: {
-              remove : handleRemoveNodeAndEdges
+            position: { x: selectedNode.position.x + 150, y: selectedNode.position.y - 100}, data: {
+              remove : handleRemoveNodeAndEdges,
+              attributes : attributesArray
             }
           };
           const thenBlockId: number = handleAddChildNode(ifBlockId, BlockType.THEN);
@@ -129,18 +214,18 @@ function App() {
             type: BlockType.THEN,
             position: { x: ifBlock.position.x + 300, y: ifBlock.position.y + 100 }, data: null
           };
-          const elseBlockId: number = handleAddChildNode(selectedNodeId, BlockType.ELSE);
+          const elseBlockId: number = handleAddChildNode(ifBlockId, BlockType.ELSE);
           const elseBlock = {
             id: elseBlockId.toString(),
             type: BlockType.ELSE,
-            position: { x: ifBlock.position.x + 50, y: selectedNode.position.y + 100 }, data: null
+            position: { x: ifBlock.position.x + 200, y: ifBlock.position.y + 350 }, data: null
           };
           addNode(ifBlock);
           addNode(thenBlock);
           addNode(elseBlock);
           addEdge({ id: 'e' + selectedNodeId.toString() + '-' + ifBlockId.toString(), source: selectedNodeId.toString(), target: ifBlockId.toString() })
-          addEdge({ id: 'e' + selectedNodeId.toString() + '-' + elseBlockId.toString(), source: selectedNodeId.toString(), target: elseBlockId.toString() })
-          addEdge({ id: 'e' + ifBlockId.toString() + '-' + thenBlockId.toString(), source: ifBlockId.toString(), target: thenBlockId.toString() })
+          addEdge({ id: 'e' + ifBlockId.toString() + '-' + elseBlockId.toString(), source: ifBlockId.toString(), target: elseBlockId.toString(), sourceHandle: 'else' })
+          addEdge({ id: 'e' + ifBlockId.toString() + '-' + thenBlockId.toString(), source: ifBlockId.toString(), target: thenBlockId.toString(), sourceHandle: 'then', })
         }
         break
       }
@@ -178,6 +263,12 @@ function App() {
     setSelectedNode(null)
   };
 
+  const editorRef = useRef(null);
+
+  function handleEditorDidMount(editor: any, monaco: any) {
+    editorRef.current = editor;
+  }
+
   return (
       <div>
 
@@ -194,6 +285,14 @@ function App() {
         </div>
         <div className="w-1/6 fixed top-5 left-5 bottom-40 rounded-lg bg-white">
           <ActionBar addConditionalBlock={addConditionalBlock}/>
+        </div>
+        <div className="w-1/6 fixed top-5 right-5 bottom-40 rounded-lg bg-white">
+          <Editor
+            height="90vh"
+            defaultLanguage="json"
+            defaultValue="// some comment"
+            onMount={handleEditorDidMount}
+        />
         </div>
       </div>
   )

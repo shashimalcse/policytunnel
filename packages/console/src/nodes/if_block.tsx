@@ -2,14 +2,57 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import { useState } from 'react';
 import { Handle, NodeProps, Position } from 'reactflow';
+import { AttributeInfo } from '@policytunnel/shared/src/input_processor/input_loader';
 
 type IfBlockData = {
   remove: (id:number) => void
+  attributes : AttributeInfo[]
 };
+
+interface OperatorOption {
+  value: string;
+  label: string;
+}
 
 const IfBlock = ({id, data}: NodeProps<IfBlockData>) => {
 
+  console.log(data.attributes)
+
+  const operatorOptions: OperatorOption[] = [
+    { value: 'equal', label: 'Equal' },
+    { value: 'notEqual', label: 'Not Equal' },
+    { value: 'contains', label: 'Contains' }
+  ];
+
+  const getOperatorOptions = (attribute: AttributeInfo): OperatorOption[] => {
+    switch (attribute.type) {
+      case 'string':
+      case 'number':
+      case 'boolean':
+        return operatorOptions.slice(0, 2); // 'equal' and 'not equal'
+      case 'array':
+        return operatorOptions.slice(2, 3); // 'contains'
+      default:
+        return [];
+    }
+  };
+
   const [actionSelected, setActionSelected] = useState<boolean>(false);
+  const [selectedAttribute, setSelectedAttribute] = useState<AttributeInfo>(data.attributes[0]);
+  const [selectedOperators, setSelectedOperators] = useState<OperatorOption[]>(getOperatorOptions(data.attributes[0]));
+  const [selectedOperator, setSelectedOperator] = useState<string>(selectedOperators[0].value);
+
+  const handleAttributeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const attribute = data.attributes.find(attribute => attribute.name === event.target.value)
+    if (attribute) {
+      setSelectedAttribute(attribute);
+      setSelectedOperators(getOperatorOptions(attribute))
+    }
+  };
+  const handleOperatorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOperator(event.target.value);
+  };
+
   return (
     <>
       <Handle
@@ -42,10 +85,14 @@ const IfBlock = ({id, data}: NodeProps<IfBlockData>) => {
             <select
               id="dropdown1"
               className="border border-gray-300 rounded w-full px-3 py-2"
+              value={selectedAttribute.name}
+              onChange={handleAttributeChange}
             >
-              <option value="option1">username</option>
-              <option value="option2">gender</option>
-              <option value="option3">lastname</option>
+            {data.attributes.map(attr => (
+              <option key={attr.name} value={attr.name}>
+                {attr.name}
+              </option>
+            ))}
             </select>
           </div>
 
@@ -56,9 +103,14 @@ const IfBlock = ({id, data}: NodeProps<IfBlockData>) => {
             <select
               id="dropdown2"
               className="border border-gray-300 rounded w-full px-3 py-2"
+              value={selectedOperator}
+              onChange={handleOperatorChange}
             >
-              <option value="equal">Equal</option>
-              <option value="not_equal">Not Equal</option>
+            {selectedOperators.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
             </select>
           </div>
 
@@ -78,7 +130,14 @@ const IfBlock = ({id, data}: NodeProps<IfBlockData>) => {
       <Handle
         type="source"
         position={Position.Right}
-        id="a"
+        id="then"
+        style={{ background: '#555' }}
+        isConnectable={true}
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        id="else"
         style={{ background: '#555' }}
         isConnectable={true}
       />

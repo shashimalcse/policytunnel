@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint \"src/**/*.ts\" --fix",
+    "test:unit": "jest",
+    "build": "tspc --build tsconfig.build.json"
   },
   "author": "",
   "license": "ISC"
