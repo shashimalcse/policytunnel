@@ -14,7 +14,7 @@ import ThenBlock from './nodes/then_block';
 import PassBlock from './nodes/pass_block';
 import FailBlock from './nodes/fail_block';
 import ActionBar from './components/action_bar';
-import { ExtractAttributesFromInput } from "@policytunnel/shared/src/input_processor/input_loader";
+import { AttributeInfo, ExtractAttributesFromInput } from "@policytunnel/shared/src/input_processor/input_loader";
 import Editor from '@monaco-editor/react'
 import CloseIcon from '@mui/icons-material/Close';
 import TableChartOutlinedIcon from '@mui/icons-material/TableChartOutlined';
@@ -135,13 +135,12 @@ function App() {
     }
   }`
 
-  const attributesArray = ExtractAttributesFromInput(initialInput);
 
   const { nodes, edges, onNodesChange, onEdgesChange, addNode, addEdge, removeNode } = useStore(selector, shallow);
   const [selectedNode, setSelectedNode] = useState<any>();
-  const [input, setInput] = useState<string>(initialInput);
   const [inputEditorValue, setInputEditorValue] = useState<string>(initialInput);
   const [inputValidated, setInputValidated] = useState<boolean>(true);
+  const [conditionalAttributes, setConditionalAttributes] = useState<AttributeInfo[]>(ExtractAttributesFromInput(initialInput));
 
   // This is the grpah we use to keep the nodes and later we will pass this for policy generation.
   const [graph, setGraph] = useState(new Graph());
@@ -213,7 +212,7 @@ function App() {
             type: BlockType.IF,
             position: { x: selectedNode.position.x + 150, y: selectedNode.position.y - 100 }, data: {
               remove: handleRemoveNodeAndEdges,
-              attributes: attributesArray
+              attributes: conditionalAttributes
             }
           };
           const thenBlockId: number = handleAddChildNode(ifBlockId, BlockType.THEN);
@@ -291,7 +290,9 @@ function App() {
   }
 
   function handleInputSubmit() {
-    console.log(inputValidated)
+    if(inputValidated) {
+      setConditionalAttributes(ExtractAttributesFromInput(inputEditorValue))
+    }
   }
 
   const [showController, setShowController] = useState(false);
@@ -346,7 +347,7 @@ function App() {
               <Editor
                 height="50vh"
                 defaultLanguage="json"
-                defaultValue={initialInput}
+                defaultValue={inputEditorValue}
                 onMount={handleEditorDidMount}
                 onChange={handleEditorChange}
                 onValidate={handleEditorValidation}
