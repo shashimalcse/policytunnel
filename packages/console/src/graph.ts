@@ -1,9 +1,20 @@
 import { BlockType } from "./constants/block_types";
 
+export interface NodeProperties {
+
+}
+
+export interface IfNodeProperties extends NodeProperties{
+    attribute : string;
+    operator: string;
+    value: string
+}
+
 export interface Node {
     id: number;
     type: BlockType;
     connectedNodeIds: number[];
+    properties ?: NodeProperties
 }
 
 class Graph {
@@ -91,6 +102,22 @@ class Graph {
       this.connectNodes(parentNodeId, childNodeId);
   
       return childNodeId;
+    }
+
+    updateNodeProperties(nodeId: number, properties: NodeProperties): void {
+      const node = this.nodes.find(node => node.id === nodeId);
+  
+      if (!node) {
+        console.log("node not found");
+        return;
+      }
+
+      if (node.type !== BlockType.IF){
+        console.log("currently only support for if blocks");
+        return;
+      }
+  
+      node.properties = properties
     }
   }
 
