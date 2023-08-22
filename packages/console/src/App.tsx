@@ -34,7 +34,7 @@ import Graph from './graph';
 import { BlockType } from './constants/block_types';
 import { ControllerType } from './constants/controller';
 
-const selector = (state: { nodes: any; edges: any; onNodesChange: any; onEdgesChange: any; onConnect: any; addNode: any; addEdge: any; removeNode: any }) => ({
+const selector = (state: { nodes: any; edges: any; onNodesChange: any; onEdgesChange: any; onConnect: any; addNode: any; addEdge: any; removeNode: any; updateIfNodesAttributes: any }) => ({
   nodes: state.nodes,
   edges: state.edges,
   onNodesChange: state.onNodesChange,
@@ -42,7 +42,8 @@ const selector = (state: { nodes: any; edges: any; onNodesChange: any; onEdgesCh
   onConnect: state.onConnect,
   addNode: state.addNode,
   addEdge: state.addEdge,
-  removeNode: state.removeNode
+  removeNode: state.removeNode,
+  updateIfNodesAttributes: state.updateIfNodesAttributes
 });
 
 const edgeOptions = {
@@ -136,7 +137,7 @@ function App() {
   }`
 
 
-  const { nodes, edges, onNodesChange, onEdgesChange, addNode, addEdge, removeNode } = useStore(selector, shallow);
+  const { nodes, edges, onNodesChange, onEdgesChange, addNode, addEdge, removeNode, updateIfNodesAttributes } = useStore(selector, shallow);
   const [selectedNode, setSelectedNode] = useState<any>();
   const [inputEditorValue, setInputEditorValue] = useState<string>(initialInput);
   const [inputValidated, setInputValidated] = useState<boolean>(true);
@@ -292,6 +293,7 @@ function App() {
   function handleInputSubmit() {
     if(inputValidated) {
       setConditionalAttributes(ExtractAttributesFromInput(inputEditorValue))
+      updateIfNodesAttributes(ExtractAttributesFromInput(inputEditorValue))
     }
   }
 
