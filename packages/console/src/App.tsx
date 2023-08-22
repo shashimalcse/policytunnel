@@ -14,6 +14,7 @@ import PassBlock from './nodes/pass_block';
 import FailBlock from './nodes/fail_block';
 import ActionBar from './components/action_bar';
 import { AttributeInfo, ExtractAttributesFromInput } from "@policytunnel/shared/src/input_processor/input_loader";
+import { findPaths } from "@policytunnel/shared/src/graph_processor/path_finder";
 import Editor from '@monaco-editor/react'
 import CloseIcon from '@mui/icons-material/Close';
 import TableChartOutlinedIcon from '@mui/icons-material/TableChartOutlined';
@@ -213,7 +214,7 @@ function App() {
             position: { x: selectedNode.position.x + 150, y: selectedNode.position.y - 100 }, data: {
               remove: handleRemoveNodeAndEdges,
               attributes: conditionalAttributes,
-              updateNodeProperties : updateNodeProperties
+              updateNodeProperties: updateNodeProperties
             }
           };
           const thenBlockId: number = handleAddChildNode(ifBlockId, BlockType.THEN);
@@ -291,7 +292,7 @@ function App() {
   }
 
   function handleInputSubmit() {
-    if(inputValidated) {
+    if (inputValidated) {
       setConditionalAttributes(ExtractAttributesFromInput(inputEditorValue))
       updateIfNodesAttributes(ExtractAttributesFromInput(inputEditorValue))
     }
@@ -314,6 +315,11 @@ function App() {
     console.log(graph)
   }
 
+  const handleGenerator = () => {
+    const path:any = findPaths(graph, 1, 'passBlock')
+    console.log(path)
+  }
+
   const [selectedControllerTab, setSelectedControllerTab] = useState<ControllerType>(ControllerType.VALIDATORS);
 
   return (
@@ -323,6 +329,7 @@ function App() {
         <ReactFlow className="bg-gray-200" nodes={nodes} edges={edges} nodeTypes={nodeTypes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} defaultEdgeOptions={edgeOptions} onNodeClick={(event, node) => {
           if (node?.id) {
             setSelectedNode(node)
+            setShowController(true)
           }
         }}>
           <Background variant={BackgroundVariant.Dots} />
@@ -348,6 +355,9 @@ function App() {
               <li className="mr-2">
                 <a href="#" className={`inline-block p-4 border-b-2 ${selectedControllerTab === ControllerType.INPUT ? "text-blue-600 border-blue-600" : "border-transparent hover:text-gray-600 hover:border-gray-300"}`} onClick={() => { setSelectedControllerTab(ControllerType.INPUT) }}>Input</a>
               </li>
+              <li className="mr-2">
+                <a href="#" className={`inline-block p-4 border-b-2 ${selectedControllerTab === ControllerType.GENERATOR ? "text-blue-600 border-blue-600" : "border-transparent hover:text-gray-600 hover:border-gray-300"}`} onClick={() => { setSelectedControllerTab(ControllerType.GENERATOR) }}>Generator</a>
+              </li>
             </ul>
           </div>
           {selectedControllerTab === ControllerType.VALIDATORS ? (
@@ -372,11 +382,19 @@ function App() {
                 Submit
               </button>
             </div>
+          ) : selectedControllerTab === ControllerType.GENERATOR ? (
+            <div className="flex flex-col justify-center items-center pt-2 rounded-lg bg-white">
+              <button
+                className="my-5 px-4 py-2 bg-gray-900 text-white rounded-full text-xs"
+                onClick={handleGenerator}
+              >
+                Generate
+              </button>
+            </div>
           ) : (
             null
           )}
         </div>
-
       )}
     </div>
   )
