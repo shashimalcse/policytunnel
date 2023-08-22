@@ -7,7 +7,7 @@ export interface NodeProperties {
 export interface IfNodeProperties extends NodeProperties{
     attribute : string;
     operator: string;
-    value: string
+    value: string | string[]
 }
 
 export interface Node {

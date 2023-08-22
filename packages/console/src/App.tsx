@@ -2,7 +2,6 @@ import ReactFlow, {
   Background, MiniMap,
   Controls, BackgroundVariant
 } from 'reactflow';
-import { shallow } from 'zustand/shallow';
 import './App.css'
 import 'reactflow/dist/style.css';
 import { useRef, useState } from 'react';
@@ -29,10 +28,10 @@ const nodeTypes = {
   failBlock: FailBlock
 };
 
-import useStore from './store';
-import Graph from './graph';
+import Graph, { NodeProperties } from './graph';
 import { BlockType } from './constants/block_types';
 import { ControllerType } from './constants/controller';
+import useNodeStore from './store';
 
 const selector = (state: { nodes: any; edges: any; onNodesChange: any; onEdgesChange: any; onConnect: any; addNode: any; addEdge: any; removeNode: any; updateIfNodesAttributes: any }) => ({
   nodes: state.nodes,
@@ -137,7 +136,7 @@ function App() {
   }`
 
 
-  const { nodes, edges, onNodesChange, onEdgesChange, addNode, addEdge, removeNode, updateIfNodesAttributes } = useStore(selector, shallow);
+  const { nodes, edges, onNodesChange, onEdgesChange, addNode, addEdge, removeNode, updateIfNodesAttributes } = useNodeStore(selector);
   const [selectedNode, setSelectedNode] = useState<any>();
   const [inputEditorValue, setInputEditorValue] = useState<string>(initialInput);
   const [inputValidated, setInputValidated] = useState<boolean>(true);
@@ -213,7 +212,8 @@ function App() {
             type: BlockType.IF,
             position: { x: selectedNode.position.x + 150, y: selectedNode.position.y - 100 }, data: {
               remove: handleRemoveNodeAndEdges,
-              attributes: conditionalAttributes
+              attributes: conditionalAttributes,
+              updateNodeProperties : updateNodeProperties
             }
           };
           const thenBlockId: number = handleAddChildNode(ifBlockId, BlockType.THEN);
@@ -303,6 +303,16 @@ function App() {
   const toggleController = () => {
     setShowController((prevShowController) => !prevShowController);
   };
+
+  const updateNodeProperties = (id: number, properties: NodeProperties) => {
+
+    graph.updateNodeProperties(id, properties);
+    const newGraph = new Graph();
+    newGraph.nodes = graph.nodes;
+    newGraph.nextNodeId = graph.nextNodeId
+    setGraph(newGraph);
+    console.log(graph)
+  }
 
   const [selectedControllerTab, setSelectedControllerTab] = useState<ControllerType>(ControllerType.VALIDATORS);
 

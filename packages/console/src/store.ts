@@ -1,4 +1,3 @@
-import { create } from 'zustand';
 import {
     Connection,
     Edge,
@@ -14,6 +13,7 @@ import {
 } from 'reactflow';
 import { BlockType } from './constants/block_types';
 import { AttributeInfo } from '@policytunnel/shared/src/input_processor/input_loader';
+import { createWithEqualityFn } from 'zustand/traditional';
 
 const initialNodes: Node[] = [
     { id: '1', type: BlockType.START, position: { x: 100, y: 150 }, data: null },
@@ -34,7 +34,7 @@ type RFState = {
 
 };
 
-const useStore = create<RFState>((set, get) => ({
+const useNodeStore = createWithEqualityFn<RFState>((set, get) => ({
     nodes: initialNodes,
     edges: initialEdges,
     onNodesChange: (changes: NodeChange[]) => {
@@ -80,6 +80,6 @@ const useStore = create<RFState>((set, get) => ({
               }),
             });
     },
-}));
+}), Object.is);
 
-export default useStore;
+export default useNodeStore;

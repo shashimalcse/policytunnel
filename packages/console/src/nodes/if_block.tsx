@@ -1,12 +1,14 @@
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CloseIcon from '@mui/icons-material/Close';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Handle, NodeProps, Position } from 'reactflow';
 import { AttributeInfo } from '@policytunnel/shared/src/input_processor/input_loader';
+import { NodeProperties } from '../graph';
 
 type IfBlockData = {
   remove: (id:number) => void
   attributes : AttributeInfo[]
+  updateNodeProperties: (id: number, properties: NodeProperties) => void
 };
 
 interface OperatorOption {
@@ -39,16 +41,25 @@ const IfBlock = ({id, data}: NodeProps<IfBlockData>) => {
   const [selectedAttribute, setSelectedAttribute] = useState<AttributeInfo>(data.attributes[0]);
   const [selectedOperators, setSelectedOperators] = useState<OperatorOption[]>(getOperatorOptions(data.attributes[0]));
   const [selectedOperator, setSelectedOperator] = useState<string>(selectedOperators[0].value);
+  const [value, setValue] = useState<string|string[]>();
 
   const handleAttributeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const attribute = data.attributes.find(attribute => attribute.name === event.target.value)
     if (attribute) {
       setSelectedAttribute(attribute);
       setSelectedOperators(getOperatorOptions(attribute))
+      setSelectedOperator(getOperatorOptions(attribute)[0].value);
+      data.updateNodeProperties(+id, {attribute: attribute, operator: getOperatorOptions(attribute)[0].value, value: value})
     }
   };
   const handleOperatorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedOperator(event.target.value);
+    data.updateNodeProperties(+id, {attribute: selectedAttribute, operator: event.target.value, value: value})
+  };
+
+  const handleValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(event.target.value);
+    data.updateNodeProperties(+id, {attribute: selectedAttribute, operator: selectedOperator, value: event.target.value})
   };
 
   return (
@@ -120,7 +131,8 @@ const IfBlock = ({id, data}: NodeProps<IfBlockData>) => {
               type="text"
               id="textInput"
               className="border border-gray-300 rounded w-full px-3 py-2"
-              placeholder="Enter some text"
+              placeholder="Value"
+              onChange={handleValueChange}
             />
           </div>
         </div>
