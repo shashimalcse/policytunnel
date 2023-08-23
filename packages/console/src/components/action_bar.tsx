@@ -1,4 +1,4 @@
-import { BlockType } from "../constants/block_types";
+import { BlockType } from "@policytunnel/core/src/graph_processor/constants/block_types";
 
 interface ActionBarProps {
     addConditionalBlock: (blockType: BlockType) => void;

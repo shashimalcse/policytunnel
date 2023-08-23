@@ -13,8 +13,8 @@ import ThenBlock from './nodes/then_block';
 import PassBlock from './nodes/pass_block';
 import FailBlock from './nodes/fail_block';
 import ActionBar from './components/action_bar';
-import { AttributeInfo, ExtractAttributesFromInput } from "@policytunnel/shared/src/input_processor/input_loader";
-import { findPaths } from "@policytunnel/shared/src/graph_processor/path_finder";
+import { AttributeInfo, ExtractAttributesFromInput } from "@policytunnel/core/src/input_processor/input_loader";
+import { findPaths } from "@policytunnel/core/src/graph_processor/path_finder";
 import Editor from '@monaco-editor/react'
 import CloseIcon from '@mui/icons-material/Close';
 import TableChartOutlinedIcon from '@mui/icons-material/TableChartOutlined';
@@ -29,10 +29,11 @@ const nodeTypes = {
   failBlock: FailBlock
 };
 
-import Graph, { NodeProperties } from './graph';
-import { BlockType } from './constants/block_types';
+import Graph, { NodeProperties } from '@policytunnel/core/src/graph_processor/graph';
+import { BlockType } from "@policytunnel/core/src/graph_processor/constants/block_types";
 import { ControllerType } from './constants/controller';
 import useNodeStore from './store';
+import { executePaths } from '@policytunnel/core/src/graph_processor/path_executer';
 
 const selector = (state: { nodes: any; edges: any; onNodesChange: any; onEdgesChange: any; onConnect: any; addNode: any; addEdge: any; removeNode: any; updateIfNodesAttributes: any }) => ({
   nodes: state.nodes,
@@ -141,6 +142,9 @@ function App() {
   const [selectedNode, setSelectedNode] = useState<any>();
   const [inputEditorValue, setInputEditorValue] = useState<string>(initialInput);
   const [inputValidated, setInputValidated] = useState<boolean>(true);
+  const [playgroundInputEditorValue, setPlaygroundInputEditorValue] = useState<string>(initialInput);
+  const [playgroundInputValidated, setPlaygroundInputValidated] = useState<boolean>(true);
+  const [playgroundOutput, setPlaygroundOutput] = useState<string>("");
   const [conditionalAttributes, setConditionalAttributes] = useState<AttributeInfo[]>(ExtractAttributesFromInput(initialInput));
 
   // This is the grpah we use to keep the nodes and later we will pass this for policy generation.
@@ -273,13 +277,22 @@ function App() {
   };
 
   const editorRef = useRef(null);
+  const playgroundEditorRef = useRef(null);
 
   function handleEditorDidMount(editor: any, monaco: any) {
     editorRef.current = editor;
   }
 
+  function handlePlaygroundEditorDidMount(editor: any, monaco: any) {
+    editorRef.current = editor;
+  }
+
   function handleEditorChange(value: any, event: any) {
     setInputEditorValue(value);
+  }
+
+  function handlePlaygroundEditorChange(value: any, event: any) {
+    setPlaygroundInputEditorValue(value);
   }
 
   function handleEditorValidation(markers: any) {
@@ -291,12 +304,35 @@ function App() {
     }
   }
 
+  function handlePlaygroundEditorValidation(markers: any) {
+
+    if (markers.length === 0) {
+      setPlaygroundInputValidated(true);
+    } else {
+      setPlaygroundInputValidated(false);
+    }
+  }
+
   function handleInputSubmit() {
     if (inputValidated) {
       setConditionalAttributes(ExtractAttributesFromInput(inputEditorValue))
       updateIfNodesAttributes(ExtractAttributesFromInput(inputEditorValue))
     }
   }
+
+  function handlePlaygroundInputSubmit() {
+    if (playgroundInputValidated) {
+      const path: any = findPaths(graph, 1, 'passBlock')
+      const allowed: boolean = executePaths(playgroundInputEditorValue, graph, path);
+      if (allowed) {
+        setPlaygroundOutput("allowed")
+      } else {
+        setPlaygroundOutput("not allowed")
+      }
+    }
+  }
+
+
 
   const [showController, setShowController] = useState(false);
 
@@ -316,8 +352,7 @@ function App() {
   }
 
   const handleGenerator = () => {
-    const path:any = findPaths(graph, 1, 'passBlock')
-    console.log(path)
+
   }
 
   const [selectedControllerTab, setSelectedControllerTab] = useState<ControllerType>(ControllerType.VALIDATORS);
@@ -349,14 +384,17 @@ function App() {
         <div className="absolute pt-10 top-6 right-6 w-1/4 bg-white shadow-lg rounded-md">
           <div className="text-sm font-medium text-center text-gray-500 border-b border-gray-200">
             <ul className="flex flex-wrap -mb-px">
-              <li className="mr-2">
+              <li className="flex-1">
                 <a href="#" className={`inline-block p-4 border-b-2 ${selectedControllerTab === ControllerType.VALIDATORS ? "text-blue-600 border-blue-600" : "border-transparent hover:text-gray-600 hover:border-gray-300"}`} onClick={() => { setSelectedControllerTab(ControllerType.VALIDATORS) }}>Validators</a>
               </li>
-              <li className="mr-2">
+              <li className="flex-1">
                 <a href="#" className={`inline-block p-4 border-b-2 ${selectedControllerTab === ControllerType.INPUT ? "text-blue-600 border-blue-600" : "border-transparent hover:text-gray-600 hover:border-gray-300"}`} onClick={() => { setSelectedControllerTab(ControllerType.INPUT) }}>Input</a>
               </li>
-              <li className="mr-2">
+              <li className="flex-1">
                 <a href="#" className={`inline-block p-4 border-b-2 ${selectedControllerTab === ControllerType.GENERATOR ? "text-blue-600 border-blue-600" : "border-transparent hover:text-gray-600 hover:border-gray-300"}`} onClick={() => { setSelectedControllerTab(ControllerType.GENERATOR) }}>Generator</a>
+              </li>
+              <li className="flex-1">
+                <a href="#" className={`inline-block p-4 border-b-2 ${selectedControllerTab === ControllerType.PLAYGROUND ? "text-blue-600 border-blue-600" : "border-transparent hover:text-gray-600 hover:border-gray-300"}`} onClick={() => { setSelectedControllerTab(ControllerType.PLAYGROUND) }}>Playground</a>
               </li>
             </ul>
           </div>
@@ -390,6 +428,35 @@ function App() {
               >
                 Generate
               </button>
+            </div>
+          ) : selectedControllerTab === ControllerType.PLAYGROUND ? (
+            <div className="flex flex-col pt-2 rounded-lg bg-white">
+              <div className="flex flex-col ml-2 py-2 justify-start text-xs font-medium">
+                Example Input:
+              </div>
+              <div>
+              </div>
+              <Editor
+                height="50vh"
+                defaultLanguage="json"
+                defaultValue={inputEditorValue}
+                onMount={handlePlaygroundEditorDidMount}
+                onChange={handlePlaygroundEditorChange}
+                onValidate={handlePlaygroundEditorValidation}
+                loading={true}
+              />
+              <div className={`flex m-2 py-2 justify-center items-center text-xs text-white rounded ${playgroundOutput === "allowed" ? "bg-green-500 " : "bg-red-500"}`}>
+                {playgroundOutput}
+              </div>
+              <div className="flex flex-col ml-2 py-2 justify-center items-center">
+                <button
+                  className="w-20 px-4 py-2 bg-gray-900 text-white rounded-full text-xs"
+                  onClick={handlePlaygroundInputSubmit}
+                >
+                  Evaluate
+                </button>
+              </div>
+
             </div>
           ) : (
             null

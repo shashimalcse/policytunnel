@@ -1,3 +1,4 @@
+import { AttributeInfo } from "src/input_processor/input_loader";
 import { BlockType } from "./constants/block_types";
 
 export interface NodeProperties {
@@ -5,7 +6,7 @@ export interface NodeProperties {
 }
 
 export interface IfNodeProperties extends NodeProperties{
-    attribute : string;
+    attribute : AttributeInfo;
     operator: string;
     value: string | string[]
 }

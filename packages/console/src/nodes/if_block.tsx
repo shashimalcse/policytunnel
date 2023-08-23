@@ -1,9 +1,9 @@
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CloseIcon from '@mui/icons-material/Close';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Handle, NodeProps, Position } from 'reactflow';
-import { AttributeInfo } from '@policytunnel/shared/src/input_processor/input_loader';
-import { NodeProperties } from '../graph';
+import { AttributeInfo } from '@policytunnel/core/src/input_processor/input_loader';
+import { NodeProperties } from '@policytunnel/core/src/graph_processor/graph';
 
 type IfBlockData = {
   remove: (id:number) => void

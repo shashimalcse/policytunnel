@@ -1,13 +1,4 @@
-export interface Node {
-    id: number;
-    type: string;
-    connectedNodeIds: number[];
-}
-
-export interface Graph {
-    nodes: Node[];
-    nextNodeId: number;
-}
+import Graph from "./graph";
 
 export interface PathNode {
     nodeId: number;

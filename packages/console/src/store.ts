@@ -11,8 +11,8 @@ import {
     applyNodeChanges,
     applyEdgeChanges,
 } from 'reactflow';
-import { BlockType } from './constants/block_types';
-import { AttributeInfo } from '@policytunnel/shared/src/input_processor/input_loader';
+import { BlockType } from "@policytunnel/core/src/graph_processor/constants/block_types";
+import { AttributeInfo } from '@policytunnel/core/src/input_processor/input_loader';
 import { createWithEqualityFn } from 'zustand/traditional';
 
 const initialNodes: Node[] = [
