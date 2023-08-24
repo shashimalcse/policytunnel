@@ -9,5 +9,5 @@ The PolicyTunnel is a powerful and versatile tool designed to streamline the pro
 
 - Conditional policy creation
 - Policy execution
-- OPA policy generation  
+- [OPA](https://www.openpolicyagent.org/) policy generation  
 - Attribute based access control (external data cannot be plugged in at the moment. The calling system can include external data as part of `input`)
