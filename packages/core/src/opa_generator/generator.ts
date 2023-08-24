@@ -18,16 +18,22 @@ export function getOpaPolicy(graph: Graph, paths: PathNode[][]): string {
             "",
             "allow {"
          ]
-        for (const node of path) {
+        for (let i = 0; i < path.length; i++) {
+            const node = path[i];
             if (node.type === BlockType.IF) {
                 const nodeToExecute = graph.nodes.find(n => n.id === node.nodeId);
                 if (!nodeToExecute?.properties) {
                     continue
                 } else {
+                    
                     const properties: IfNodeProperties = nodeToExecute?.properties as IfNodeProperties;
                     const opaCondition = getOpaCondition(properties)
                     policies.push(opaCondition)
-                    opaConditions.push("    " + properties.attribute.name + "_" + properties.operator)
+                    if (isNegativeCondition(path[i+1])) {
+                        opaConditions.push("    not " + properties.attribute.name + "_" + properties.operator)
+                    } else {
+                        opaConditions.push("    " + properties.attribute.name + "_" + properties.operator)
+                    }
                 }
             }
         }
@@ -39,6 +45,14 @@ export function getOpaPolicy(graph: Graph, paths: PathNode[][]): string {
     const policiesContent = policies.join('\r\n');
     console.log(policiesContent)
     return policiesContent;
+}
+
+function isNegativeCondition(node: PathNode): boolean {
+    
+    if (node.type == BlockType.ELSE) {
+        return true
+    }
+    return false
 }
 
 function getOpaCondition(properties: IfNodeProperties): string {
