@@ -18,6 +18,7 @@ import { findPaths } from "@policytunnel/core/src/graph_processor/path_finder";
 import Editor from '@monaco-editor/react'
 import CloseIcon from '@mui/icons-material/Close';
 import TableChartOutlinedIcon from '@mui/icons-material/TableChartOutlined';
+import CodeMirror from '@uiw/react-codemirror';
 
 const nodeTypes = {
   ifBlock: IfBlock,
@@ -34,6 +35,7 @@ import { BlockType } from "@policytunnel/core/src/graph_processor/constants/bloc
 import { ControllerType } from './constants/controller';
 import useNodeStore from './store';
 import { executePaths } from '@policytunnel/core/src/graph_processor/path_executer';
+import { getOpaPolicy } from '@policytunnel/core/src/opa_generator/generator';
 
 const selector = (state: { nodes: any; edges: any; onNodesChange: any; onEdgesChange: any; onConnect: any; addNode: any; addEdge: any; removeNode: any; updateIfNodesAttributes: any }) => ({
   nodes: state.nodes,
@@ -284,14 +286,14 @@ function App() {
   }
 
   function handlePlaygroundEditorDidMount(editor: any, monaco: any) {
-    editorRef.current = editor;
+    playgroundEditorRef.current = editor;
   }
 
   function handleEditorChange(value: any, event: any) {
     setInputEditorValue(value);
   }
 
-  function handlePlaygroundEditorChange(value: any, event: any) {
+function handlePlaygroundEditorChange(value: any, event: any) {
     setPlaygroundInputEditorValue(value);
   }
 
@@ -335,7 +337,7 @@ function App() {
 
 
   const [showController, setShowController] = useState(false);
-
+  const [opaPolicyValue, setOpaPolicyValue] = useState("");
 
   const toggleController = () => {
     setShowController((prevShowController) => !prevShowController);
@@ -352,7 +354,9 @@ function App() {
   }
 
   const handleGenerator = () => {
-
+    const path: any = findPaths(graph, 1, 'passBlock')
+    const opa_condition = getOpaPolicy(graph, path)
+    setOpaPolicyValue(opa_condition)
   }
 
   const [selectedControllerTab, setSelectedControllerTab] = useState<ControllerType>(ControllerType.VALIDATORS);
@@ -422,6 +426,12 @@ function App() {
             </div>
           ) : selectedControllerTab === ControllerType.GENERATOR ? (
             <div className="flex flex-col justify-center items-center pt-2 rounded-lg bg-white">
+              <CodeMirror
+                value={opaPolicyValue}
+                height="50vh"
+                width='300px'
+                onChange={()=>{}}
+              />
               <button
                 className="my-5 px-4 py-2 bg-gray-900 text-white rounded-full text-xs"
                 onClick={handleGenerator}
@@ -445,7 +455,7 @@ function App() {
                 onValidate={handlePlaygroundEditorValidation}
                 loading={true}
               />
-              <div className={`flex m-2 py-2 justify-center items-center text-xs text-white rounded ${playgroundOutput === "allowed" ? "bg-green-500 " : "bg-red-500"}`}>
+              <div className={`flex m-2 py-2 justify-center items-center text-xs text-white rounded ${playgroundOutput === "allowed" ? "bg-green-500 " : playgroundOutput === "not allowed" ? "bg-red-500" : ""}`}>
                 {playgroundOutput}
               </div>
               <div className="flex flex-col ml-2 py-2 justify-center items-center">
