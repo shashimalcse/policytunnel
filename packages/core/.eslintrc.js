@@ -1,8 +1,11 @@
 module.exports = {
     extends: '../../.eslintrc.js',
     parserOptions: {
-      project: 'tsconfig.json',
-      tsconfigRootDir: __dirname,
-      sourceType: 'module',
+        project: 'tsconfig.json',
+        tsconfigRootDir: __dirname,
+        sourceType: 'module',
+    },
+    rules: {
+        "@typescript-eslint/no-inferrable-types": "off"
     }
-  };
+};

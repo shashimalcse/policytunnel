@@ -19,23 +19,24 @@ import Editor from '@monaco-editor/react'
 import CloseIcon from '@mui/icons-material/Close';
 import TableChartOutlinedIcon from '@mui/icons-material/TableChartOutlined';
 import CodeMirror from '@uiw/react-codemirror';
-
-const nodeTypes = {
-  ifBlock: IfBlock,
-  elseBlock: ElseBlock,
-  startBlock: StartBlock,
-  endBlock: EndBlock,
-  thenBlock: ThenBlock,
-  passBlock: PassBlock,
-  failBlock: FailBlock
-};
-
 import Graph, { NodeProperties } from '@policytunnel/core/src/graph_processor/graph';
 import { BlockType } from "@policytunnel/core/src/graph_processor/constants/block_types";
 import { ControllerType } from './constants/controller';
 import useNodeStore from './store';
 import { executePaths } from '@policytunnel/core/src/graph_processor/path_executer';
 import { getOpaPolicy } from '@policytunnel/core/src/opa_generator/generator';
+import initialInputValue from '@policytunnel/core/src/initialInput.json';
+
+
+const nodeTypes = {
+    ifBlock: IfBlock,
+    elseBlock: ElseBlock,
+    startBlock: StartBlock,
+    endBlock: EndBlock,
+    thenBlock: ThenBlock,
+    passBlock: PassBlock,
+    failBlock: FailBlock
+  };
 
 const selector = (state: { nodes: any; edges: any; onNodesChange: any; onEdgesChange: any; onConnect: any; addNode: any; addEdge: any; removeNode: any; updateIfNodesAttributes: any }) => ({
   nodes: state.nodes,
@@ -58,87 +59,7 @@ const edgeOptions = {
 
 function App() {
 
-  const initialInput = `{
-    "authn_ctx": {
-      "scp": [
-        "openid",
-        "profile",
-        "email",
-        "sample_service:read"
-      ],
-      "sub": "joe",
-      "idp_id": "4abc18656e1d79589b6a6ba8afcb350a02623c6f5d39f43c3bcc47b697e92538",
-      "groups": [
-        "admins",
-        "users"
-      ],
-      "email": "testjoe@cloudentity.com",
-      "email_verified": true,
-      "phone_number": "+1-555-6616-899",
-      "phone_number_verified": "+1-555-6616-899",
-      "address": {
-        "formatted": "",
-        "street_address": "1463  Perry Street",
-        "locality": "Dayton",
-        "region": "Kentucky",
-        "country": "US",
-        "postal_code": "41074"
-      },
-      "name": "Joe Test",
-      "given_name": "Joe",
-      "middle_name": "",
-      "family_name": "Test",
-      "nickname": "joe",
-      "preferred_username": "testjoe",
-      "profile": "",
-      "picture": "",
-      "website": "",
-      "gender": "male",
-      "birthdate": "1960-10-09",
-      "zoneinfo": "",
-      "locale": "",
-      "updated_at": ""
-    },
-    "contexts": {
-      "scopes": {
-        "users.*": [
-          {
-            "params": [
-              "joe"
-            ],
-            "requested_name": "users.joe"
-          }
-        ]
-      },
-      "workspaceMetadata": {
-        "sap_id": "123456789"
-      }
-    },
-    "request": {
-      "headers": {
-        "Content-Type": [
-          "application/json"
-        ],
-        "X-Custom-Header": [
-          "BOT_DETECTED"
-        ]
-      },
-      "method": "POST",
-      "path_params": {
-        "users": "admins"
-      },
-      "query_params": {
-        "limit": [
-          "1000"
-        ],
-        "offset": [
-          "100"
-        ]
-      },
-      "path": "/doawesomethings"
-    }
-  }`
-
+  const initialInput: string = JSON.stringify(initialInputValue);
 
   const { nodes, edges, onNodesChange, onEdgesChange, addNode, addEdge, removeNode, updateIfNodesAttributes } = useNodeStore(selector);
   const [selectedNode, setSelectedNode] = useState<any>();
@@ -150,7 +71,7 @@ function App() {
   const [conditionalAttributes, setConditionalAttributes] = useState<AttributeInfo[]>(ExtractAttributesFromInput(initialInput));
 
   // This is the grpah we use to keep the nodes and later we will pass this for policy generation.
-  const [graph, setGraph] = useState(new Graph());
+  const [graph, setGraph] = useState<Graph>(new Graph());
 
   // Add child node to grpah.
   const handleAddChildNode = (parentNodeId: number, type: BlockType): number => {
@@ -164,7 +85,7 @@ function App() {
   };
 
   // Delete node from graph. This will child nodes as well.
-  const handleDeleteNode = (nodeId: number) => {
+  const handleDeleteNode = (nodeId: number): void => {
 
     graph.deleteNode(nodeId);
     const newGraph = new Graph();
@@ -191,7 +112,7 @@ function App() {
         stack.push(...currentNode.connectedNodeIds);
       }
 
-      for (var nodeId of nodesToDelete) {
+      for (const nodeId of nodesToDelete) {
         removeNode(nodeId.toString())
       }
       handleDeleteNode(id)
@@ -430,7 +351,7 @@ function handlePlaygroundEditorChange(value: any, event: any) {
                 value={opaPolicyValue}
                 height="50vh"
                 width='300px'
-                onChange={()=>{}}
+                onChange={() => null}
               />
               <button
                 className="my-5 px-4 py-2 bg-gray-900 text-white rounded-full text-xs"
