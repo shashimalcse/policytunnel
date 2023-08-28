@@ -1,3 +1,4 @@
+/* eslint-disable */
 const base = require('../../jest.config');
 
 module.exports = {
