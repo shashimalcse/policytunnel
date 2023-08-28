@@ -1,5 +1,5 @@
 import { BlockType } from "./constants/block_types";
-import Graph, { IfNodeProperties, NodeProperties } from "./graph";
+import Graph, { IfNodeProperties } from "./graph";
 import { PathNode } from "./path_finder";
 
 export function executePaths(input: string, graph: Graph, paths: PathNode[][]): boolean {

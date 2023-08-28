@@ -1,11 +1,9 @@
 import { AttributeInfo } from "src/input_processor/input_loader";
 import { BlockType } from "./constants/block_types";
 
-export interface NodeProperties {
+export interface NodeProperties {}
 
-}
-
-export interface IfNodeProperties extends NodeProperties{
+export interface IfNodeProperties extends NodeProperties {
     attribute : AttributeInfo;
     operator: string;
     value: string | string[]
@@ -20,7 +18,7 @@ export interface Node {
 
 class Graph {
     public nodes: Node[] = [];
-    public nextNodeId: number = 1;
+    public nextNodeId = 1;
   
     constructor() {
       // Create initial start and end nodes
@@ -43,7 +41,7 @@ class Graph {
     getNode(id: number): Node | undefined {
   
       return this.nodes.find(node => node.id === id);
-    };
+    }
   
     addNode(type: BlockType): number {
       const newNode: Node = {
@@ -68,12 +66,13 @@ class Graph {
       const stack: number[] = [nodeId];
   
       while (stack.length > 0) {
-        const currentId = stack.pop()!;
-        const currentNode = this.nodes.find(node => node.id === currentId)!;
+        const currentId = stack.pop();
+        const currentNode = this.nodes.find(node => node.id === currentId);
+        if (currentNode !== undefined) {
+          nodesToDelete.push(...currentNode.connectedNodeIds);
   
-        nodesToDelete.push(...currentNode.connectedNodeIds);
-  
-        stack.push(...currentNode.connectedNodeIds);
+          stack.push(...currentNode.connectedNodeIds);
+        }
       }
   
       this.nodes = this.nodes.filter(node => !nodesToDelete.includes(node.id));

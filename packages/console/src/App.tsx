@@ -23,7 +23,7 @@ import Graph, { NodeProperties } from '@policytunnel/core/src/graph_processor/gr
 import { BlockType } from "@policytunnel/core/src/graph_processor/constants/block_types";
 import { ControllerType } from './constants/controller';
 import useNodeStore from './store';
-import { executePaths } from '@policytunnel/core/src/graph_processor/path_executer';
+import { executePaths } from '@policytunnel/core/src/graph_processor/path_executor';
 import { getOpaPolicy } from '@policytunnel/core/src/opa_generator/generator';
 import initialInputValue from '@policytunnel/core/src/initialInput.json';
 

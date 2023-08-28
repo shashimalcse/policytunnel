@@ -7,7 +7,7 @@ export const ExtractAttributesFromInput = (jsonString: string): AttributeInfo[] 
     const data = JSON.parse(jsonString);
     const resultArray: AttributeInfo[] = [];
   
-    function processObject(obj: any, path: string = ''): void {
+    function processObject(obj: any, path = ''): void {
       for (const key in obj) {
         if (obj.hasOwnProperty(key)) {
           const fullPath = path ? `${path}.${key}` : key;
