@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build:libs": "pnpm run --parallel  --filter \"@policytunnel/core\" --filter \"@policytunnel/shared\" build",
-    "test:unit": "pnpm build:libs && pnpm run --parallel --filter \"@policytunnel/core\" --filter \"@policytunnel/shared\" test:unit",
-    "lint": "pnpm build:libs && pnpm run --parallel --filter \"@policytunnel/core\" --filter \"@policytunnel/shared\" lint"
+    "build:libs": "pnpm run --parallel  --filter \"@policytunnel/core\" build",
+    "test:unit": "pnpm build:libs && pnpm run --parallel --filter \"@policytunnel/core\" test:unit",
+    "lint": "pnpm build:libs && pnpm run --parallel --filter \"@policytunnel/core\" lint"
   },
   "author": "",
   "license": "ISC",

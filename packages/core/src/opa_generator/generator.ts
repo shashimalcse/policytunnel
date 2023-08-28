@@ -57,7 +57,7 @@ function isNegativeCondition(node: PathNode): boolean {
 
 function getOpaCondition(properties: IfNodeProperties): string {
    
-    let opaCondition: string = "";
+    let opaCondition = "";
     switch (properties.operator) {
         case "equal": {
             opaCondition = properties.attribute.name + "_" + properties.operator + " if input." + properties.attribute.name + " == \"" + properties.value + "\"";
