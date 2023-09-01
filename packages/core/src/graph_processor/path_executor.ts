@@ -5,16 +5,15 @@ import { PathNode } from "./path_finder";
 export function executePaths(input: string, graph: Graph, paths: PathNode[][]): boolean {
     const json = JSON.parse(input);
 
-    // We assume all conditions are met until proven otherwise
-    let allConditionsMet = true;
 
-    pathsLoop: for (const path of paths) {
+    for (const path of paths) {
+        let allConditionsMet = true;
+        // We assume all conditions are met until proven otherwise
         for (const node of path) {
             if (node.type === BlockType.IF) {
                 const nodeToExecute = graph.nodes.find(n => n.id === node.nodeId);
                 if (!nodeToExecute?.properties) {
                     allConditionsMet = false;
-                    break pathsLoop; // No need to check the rest of the paths
                 } else {
                     const properties: IfNodeProperties = nodeToExecute?.properties as IfNodeProperties;
                     const inputValue = getValueFromInput(json, properties.attribute.name);
@@ -23,25 +22,28 @@ export function executePaths(input: string, graph: Graph, paths: PathNode[][]): 
                         case "equal":
                             if (inputValue !== properties.value) {
                                 allConditionsMet = false;
-                                break pathsLoop; // No need to check the rest of the paths
+                                break;
                             }
                             break;
                         case "notEqual":
                             if (inputValue === properties.value) {
                                 allConditionsMet = false;
-                                break pathsLoop; // No need to check the rest of the paths
+                                break;
                             }
                             break;
                         default:
                             allConditionsMet = false;
-                            break pathsLoop; // No need to check the rest of the paths
+                            break;
                     }
                 }
             }
         }
+        if (allConditionsMet) {
+            return true;
+        }
     }
 
-    return allConditionsMet;
+    return false;
 }
 
 function getValueFromInput(input: any, attributeName: string): any | undefined {
