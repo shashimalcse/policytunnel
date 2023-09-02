@@ -6,8 +6,8 @@ import { AttributeInfo } from '@policytunnel/core/src/input_processor/input_load
 import { NodeProperties } from '@policytunnel/core/src/graph_processor/graph';
 
 type IfBlockData = {
-  remove: (id:number) => void
-  attributes : AttributeInfo[]
+  remove: (id: number) => void
+  attributes: AttributeInfo[]
   updateNodeProperties: (id: number, properties: NodeProperties) => void
 };
 
@@ -16,12 +16,15 @@ interface OperatorOption {
   label: string;
 }
 
-const IfBlock = ({id, data}: NodeProps<IfBlockData>) => {
+const IfBlock = ({ id, data }: NodeProps<IfBlockData>) => {
 
   const operatorOptions: OperatorOption[] = [
     { value: 'equal', label: 'Equal' },
-    { value: 'notEqual', label: 'Not Equal' },
-    { value: 'contains', label: 'Contains' }
+    { value: 'not_equal', label: 'Not Equal' },
+    { value: 'contains', label: 'Contains' },
+    { value: 'contain_at_least_one', label: 'Contain at least one' },
+    { value: 'not_contains', label: 'Do not contains' },
+    { value: 'not_contain_at_least_one', label: 'Do not contain at least one' },
   ];
 
   const getOperatorOptions = (attribute: AttributeInfo): OperatorOption[] => {
@@ -31,7 +34,7 @@ const IfBlock = ({id, data}: NodeProps<IfBlockData>) => {
       case 'boolean':
         return operatorOptions.slice(0, 2); // 'equal' and 'not equal'
       case 'array':
-        return operatorOptions.slice(2, 3); // 'contains'
+        return operatorOptions.slice(2, 6); // 'contains'
       default:
         return [];
     }
@@ -41,7 +44,8 @@ const IfBlock = ({id, data}: NodeProps<IfBlockData>) => {
   const [selectedAttribute, setSelectedAttribute] = useState<AttributeInfo>(data.attributes[0]);
   const [selectedOperators, setSelectedOperators] = useState<OperatorOption[]>(getOperatorOptions(data.attributes[0]));
   const [selectedOperator, setSelectedOperator] = useState<string>(selectedOperators[0].value);
-  const [value, setValue] = useState<string|string[]>();
+  const [value, setValue] = useState<string>('');
+  const [values, setValues] = useState<string | string[]>();
 
   const handleAttributeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const attribute = data.attributes.find(attribute => attribute.name === event.target.value)
@@ -49,18 +53,53 @@ const IfBlock = ({id, data}: NodeProps<IfBlockData>) => {
       setSelectedAttribute(attribute);
       setSelectedOperators(getOperatorOptions(attribute))
       setSelectedOperator(getOperatorOptions(attribute)[0].value);
-      data.updateNodeProperties(+id, {attribute: attribute, operator: getOperatorOptions(attribute)[0].value, value: value})
+      data.updateNodeProperties(+id, { attribute: attribute, operator: getOperatorOptions(attribute)[0].value, value: value })
     }
   };
   const handleOperatorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedOperator(event.target.value);
-    data.updateNodeProperties(+id, {attribute: selectedAttribute, operator: event.target.value, value: value})
+    if (event.target.value.includes("contain")) {
+      setValues([])
+    } else {
+      setValues('')
+    }
+    data.updateNodeProperties(+id, { attribute: selectedAttribute, operator: event.target.value, value: value })
   };
 
   const handleValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(event.target.value);
-    data.updateNodeProperties(+id, {attribute: selectedAttribute, operator: selectedOperator, value: event.target.value})
+    if (!selectedOperator.includes("contain")) {
+      data.updateNodeProperties(+id, { attribute: selectedAttribute, operator: selectedOperator, value: event.target.value })
+    }
+    
   };
+
+  const handleInputKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && value.trim() !== '') {
+      console.log(values)
+      // Add the value to the list of values
+      if (Array.isArray(values)) {
+        setValues([...values, value]);
+      } else {
+        setValues([value])
+      }
+      if (values !== undefined) {
+        data.updateNodeProperties(+id, { attribute: selectedAttribute, operator: selectedOperator, value: [...values, value] })
+      }
+      // Clear the input field
+      setValue('');
+    }
+  };
+
+  const handleDeleteValue = (index: number) => {
+    if (Array.isArray(values)) {
+      const updatedValues = [...values];
+      updatedValues.splice(index, 1);
+      setValues(updatedValues);
+      data.updateNodeProperties(+id, { attribute: selectedAttribute, operator: selectedOperator, value: updatedValues })
+    }
+
+};
 
   return (
     <>
@@ -97,11 +136,11 @@ const IfBlock = ({id, data}: NodeProps<IfBlockData>) => {
               value={selectedAttribute.name}
               onChange={handleAttributeChange}
             >
-            {data.attributes.map(attr => (
-              <option key={attr.name} value={attr.name}>
-                {attr.name}
-              </option>
-            ))}
+              {data.attributes.map(attr => (
+                <option key={attr.name} value={attr.name}>
+                  {attr.name}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -115,14 +154,39 @@ const IfBlock = ({id, data}: NodeProps<IfBlockData>) => {
               value={selectedOperator}
               onChange={handleOperatorChange}
             >
-            {selectedOperators.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
+              {selectedOperators.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
-
+          {selectedOperator.includes("contain") ? (
+          <div className="mb-3 w-full">
+            <label htmlFor="textInput" className="text-gray-600 mb-1 block">
+              Value:
+            </label>
+            <input
+              type="text"
+              className="border border-gray-300 rounded w-full px-3 py-2"
+              value={value}
+              onChange={handleValueChange}
+              onKeyPress={handleInputKeyPress}
+            />
+            <div className="grid grid-cols-4 gap-4">
+              {values !== undefined && values !== null
+                ? Array.isArray(values)
+                  ? values.map((val, index) => (
+                      <div key={index} className="grid-item">
+                        {val}
+                        <button onClick={() => handleDeleteValue(index)}>Delete</button>
+                      </div>
+                    ))
+                  : null
+                : null}
+            </div>
+          </div>
+        ) : (
           <div className="mb-3 w-full">
             <label htmlFor="textInput" className="text-gray-600 mb-1 block">
               Value:
@@ -135,6 +199,8 @@ const IfBlock = ({id, data}: NodeProps<IfBlockData>) => {
               onChange={handleValueChange}
             />
           </div>
+        )}
+
         </div>
       </div>
       <Handle

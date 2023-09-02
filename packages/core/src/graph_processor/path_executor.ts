@@ -17,7 +17,6 @@ export function executePaths(input: string, graph: Graph, paths: PathNode[][]): 
                 } else {
                     const properties: IfNodeProperties = nodeToExecute?.properties as IfNodeProperties;
                     const inputValue = getValueFromInput(json, properties.attribute.name);
-
                     switch (properties.operator) {
                         case "equal":
                             if (inputValue !== properties.value) {
@@ -25,8 +24,40 @@ export function executePaths(input: string, graph: Graph, paths: PathNode[][]): 
                                 break;
                             }
                             break;
-                        case "notEqual":
+                        case "not_equal":
                             if (inputValue === properties.value) {
+                                allConditionsMet = false;
+                                break;
+                            }
+                            break;
+                        case "contains":
+                            var values: string[] = Array.isArray(properties.value) ? properties.value : [];
+                            var inputValues: string[] = Array.isArray(inputValue) ? inputValue : [];
+                            if (!values.every(elementA => inputValues.includes(elementA))) {
+                                allConditionsMet = false;
+                                break;
+                            }
+                            break;
+                        case "not_contains":
+                            var values: string[] = Array.isArray(properties.value) ? properties.value : [];
+                            var inputValues: string[] = Array.isArray(inputValue) ? inputValue : [];
+                            if (values.every(elementA => inputValues.includes(elementA))) {
+                                allConditionsMet = false;
+                                break;
+                            }
+                            break;
+                        case "contain_at_least_one":
+                            var values: string[] = Array.isArray(properties.value) ? properties.value : [];
+                            var inputValues: string[] = Array.isArray(inputValue) ? inputValue : [];
+                            if (!values.some(elementA => inputValues.includes(elementA))) {
+                                allConditionsMet = false;
+                                break;
+                            }
+                            break;
+                        case "not_contain_at_least_one":
+                            var values: string[] = Array.isArray(properties.value) ? properties.value : [];
+                            var inputValues: string[] = Array.isArray(inputValue) ? inputValue : [];
+                            if (values.some(elementA => inputValues.includes(elementA))) {
                                 allConditionsMet = false;
                                 break;
                             }
@@ -46,7 +77,7 @@ export function executePaths(input: string, graph: Graph, paths: PathNode[][]): 
     return false;
 }
 
-function getValueFromInput(input: any, attributeName: string): any | undefined {
+function getValueFromInput(input: any, attributeName: string): string | string[] | undefined {
     try {
 
         const attributePath = attributeName.split('.');
