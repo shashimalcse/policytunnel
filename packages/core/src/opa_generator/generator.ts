@@ -60,11 +60,11 @@ function getOpaCondition(properties: IfNodeProperties): string {
     let opaCondition = "";
     switch (properties.operator) {
         case "equal": {
-            opaCondition = properties.attribute.name + "_" + properties.operator + " if input." + properties.attribute.name + " == \"" + properties.value + "\"";
+            opaCondition = properties.attribute.name.replace(/\./g, "_") + "_" + properties.operator + " if input." + properties.attribute.name + " == \"" + properties.value + "\"";
             break;
         }
         case "not_equal": {
-            opaCondition = properties.attribute.name + "_" + properties.operator + " if input." + properties.attribute.name + " != \"" + properties.value + "\"";
+            opaCondition = properties.attribute.name.replace(/\./g, "_") + "_" + properties.operator + " if input." + properties.attribute.name + " != \"" + properties.value + "\"";
             break;
         }
         case "contains": {
