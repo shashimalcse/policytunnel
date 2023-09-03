@@ -7,7 +7,7 @@ export function getOpaPolicy(graph: Graph, paths: PathNode[][]): string {
 
     const policies = [
         "package example",
-        "import future.keywords.if",
+        "import future.keywords",
         "",
         "default allow := false",
         ""
@@ -30,9 +30,17 @@ export function getOpaPolicy(graph: Graph, paths: PathNode[][]): string {
                     const opaCondition = getOpaCondition(properties)
                     policies.push(opaCondition)
                     if (isNegativeCondition(path[i+1])) {
-                        opaConditions.push("    not " + properties.attribute.name + "_" + properties.operator)
+                        if (properties.operator == "not_contains" || properties.operator == "not_contain_at_least_one") {
+                            opaConditions.push("    " + properties.attribute.name.replace(/\./g, "_") + "_" + properties.operator)
+                        } else {
+                            opaConditions.push("    not " + properties.attribute.name.replace(/\./g, "_") + "_" + properties.operator)
+                        }
                     } else {
-                        opaConditions.push("    " + properties.attribute.name + "_" + properties.operator)
+                        if (properties.operator == "not_contains" || properties.operator == "not_contain_at_least_one") {
+                            opaConditions.push("    not " + properties.attribute.name.replace(/\./g, "_") + "_" + properties.operator)
+                        } else {
+                            opaConditions.push("    " + properties.attribute.name.replace(/\./g, "_") + "_" + properties.operator)
+                        }
                     }
                 }
             }
@@ -60,11 +68,33 @@ function getOpaCondition(properties: IfNodeProperties): string {
     let opaCondition = "";
     switch (properties.operator) {
         case "equal": {
-            opaCondition = properties.attribute.name + "_" + properties.operator + " if input." + properties.attribute.name + " == \"" + properties.value + "\"";
+            opaCondition = properties.attribute.name.replace(/\./g, "_") + "_" + properties.operator + " if input." + properties.attribute.name + " == \"" + properties.value + "\"";
             break;
         }
-        case "notEqual": {
-            opaCondition = properties.attribute.name + "_" + properties.operator + " if input." + properties.attribute.name + " != \"" + properties.value + "\"";
+        case "not_equal": {
+            opaCondition = properties.attribute.name.replace(/\./g, "_") + "_" + properties.operator + " if input." + properties.attribute.name + " != \"" + properties.value + "\"";
+            break;
+        }
+        case "contains":
+        case "not_contains":
+        {
+            var values: string[] = Array.isArray(properties.value) ? properties.value : [];
+            const valueList = `${properties.attribute.name.replace(/\./g, "_") + "_" + properties.operator + "_list"} := {${values.map(value => `"${value}"`).join(", ")}}`;
+            opaCondition = `${valueList}\n${properties.attribute.name.replace(/\./g, "_") + "_" + properties.operator} if {\n` +
+            `   every value in ${properties.attribute.name.replace(/\./g, "_") + "_" + properties.operator + "_list"} {\n` +
+            `    value in input.${properties.attribute.name}\n` +
+            `   }\n` +
+            `}`  ;
+            break;
+        }
+        case "contain_at_least_one": 
+        case "not_contain_at_least_one": {
+            var values: string[] = Array.isArray(properties.value) ? properties.value : [];
+            const valueList = `${properties.attribute.name.replace(/\./g, "_") + "_" + properties.operator + "_list"} := {${values.map(value => `"${value}"`).join(", ")}}`;
+            opaCondition = `${valueList}\n${properties.attribute.name.replace(/\./g, "_") + "_" + properties.operator} if {\n` +
+            `   some value in input.${properties.attribute.name} \n` +
+            `       value in ${properties.attribute.name.replace(/\./g, "_") + "_" + properties.operator + "_list"}\n`+
+            `}`;
             break;
         }
     }

@@ -1,4 +1,5 @@
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import CloseIcon from '@mui/icons-material/Close';
 import { useState } from 'react';
 import { Handle, NodeProps, Position } from 'reactflow';
@@ -45,7 +46,7 @@ const IfBlock = ({ id, data }: NodeProps<IfBlockData>) => {
   const [selectedOperators, setSelectedOperators] = useState<OperatorOption[]>(getOperatorOptions(data.attributes[0]));
   const [selectedOperator, setSelectedOperator] = useState<string>(selectedOperators[0].value);
   const [value, setValue] = useState<string>('');
-  const [values, setValues] = useState<string | string[]>();
+  const [values, setValues] = useState<string | string[]>(selectedOperator.includes("contain") ? [] : '');
 
   const handleAttributeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const attribute = data.attributes.find(attribute => attribute.name === event.target.value)
@@ -71,7 +72,7 @@ const IfBlock = ({ id, data }: NodeProps<IfBlockData>) => {
     if (!selectedOperator.includes("contain")) {
       data.updateNodeProperties(+id, { attribute: selectedAttribute, operator: selectedOperator, value: event.target.value })
     }
-    
+
   };
 
   const handleInputKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -99,7 +100,7 @@ const IfBlock = ({ id, data }: NodeProps<IfBlockData>) => {
       data.updateNodeProperties(+id, { attribute: selectedAttribute, operator: selectedOperator, value: updatedValues })
     }
 
-};
+  };
 
   return (
     <>
@@ -162,44 +163,48 @@ const IfBlock = ({ id, data }: NodeProps<IfBlockData>) => {
             </select>
           </div>
           {selectedOperator.includes("contain") ? (
-          <div className="mb-3 w-full">
-            <label htmlFor="textInput" className="text-gray-600 mb-1 block">
-              Value:
-            </label>
-            <input
-              type="text"
-              className="border border-gray-300 rounded w-full px-3 py-2"
-              value={value}
-              onChange={handleValueChange}
-              onKeyPress={handleInputKeyPress}
-            />
-            <div className="grid grid-cols-4 gap-4">
-              {values !== undefined && values !== null
-                ? Array.isArray(values)
-                  ? values.map((val, index) => (
-                      <div key={index} className="grid-item">
-                        {val}
-                        <button onClick={() => handleDeleteValue(index)}>Delete</button>
+            <div className="mb-3 w-full">
+              <label htmlFor="textInput" className="text-gray-600 mb-1 block">
+                Values:
+              </label>
+              <input
+                type="text"
+                className="border border-gray-300 rounded w-full px-3 py-2"
+                value={value}
+                onChange={handleValueChange}
+                onKeyPress={handleInputKeyPress}
+              />
+              <div className="grid grid-flow-row-dense grid-cols-2 gap-x-4 gap-y-2 mt-2">
+                {values !== undefined && values !== null
+                  ? Array.isArray(values)
+                    ? values.map((val, index) => (
+                      <div key={index} className="flex flex-row justify-between bg-gray-200 border border-gray-300 items-center rounded-lg p-1">
+                        <div className="mx-1">
+                          <p className="">{val}</p>
+                        </div>
+                        <div onClick={() => handleDeleteValue(index)}>
+                          <HighlightOffIcon fontSize="small" className="text-black" />
+                        </div>
                       </div>
                     ))
-                  : null
-                : null}
+                    : null
+                  : null}
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="mb-3 w-full">
-            <label htmlFor="textInput" className="text-gray-600 mb-1 block">
-              Value:
-            </label>
-            <input
-              type="text"
-              id="textInput"
-              className="border border-gray-300 rounded w-full px-3 py-2"
-              placeholder="Value"
-              onChange={handleValueChange}
-            />
-          </div>
-        )}
+          ) : (
+            <div className="mb-3 w-full">
+              <label htmlFor="textInput" className="text-gray-600 mb-1 block">
+                Value:
+              </label>
+              <input
+                type="text"
+                id="textInput"
+                className="border border-gray-300 rounded w-full px-3 py-2"
+                placeholder="Value"
+                onChange={handleValueChange}
+              />
+            </div>
+          )}
 
         </div>
       </div>

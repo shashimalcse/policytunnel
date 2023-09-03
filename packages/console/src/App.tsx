@@ -203,10 +203,16 @@ function App() {
   const playgroundEditorRef = useRef(null);
 
   function handleEditorDidMount(editor: any, monaco: any) {
+    setTimeout(function() {
+      editor.getAction('editor.action.formatDocument').run();
+    }, 300);
     editorRef.current = editor;
   }
 
   function handlePlaygroundEditorDidMount(editor: any, monaco: any) {
+    setTimeout(function() {
+      editor.getAction('editor.action.formatDocument').run();
+    }, 300);
     playgroundEditorRef.current = editor;
   }
 
