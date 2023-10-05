@@ -252,6 +252,7 @@ function handlePlaygroundEditorChange(value: any, event: any) {
   function handlePlaygroundInputSubmit() {
     if (playgroundInputValidated) {
       const path: any = findPaths(graph, 1, 'passBlock')
+      console.log(path)
       const allowed: boolean = executePaths(playgroundInputEditorValue, graph, path);
       if (allowed) {
         setPlaygroundOutput("allowed")
