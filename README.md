@@ -1,5 +1,5 @@
 # PolicyTunnel
-## No-code editor for complex authorization policy generation! 
+## Whiteboard for complex authorization policy generation!
 
 The PolicyTunnel is a powerful and versatile tool designed to streamline the process of creating and managing complex authorization policies. With a focus on efficiency and ease of use, this editor empowers developers to define and implement fine-grained access control rules wherever they are needed.
 
