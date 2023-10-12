@@ -2,8 +2,23 @@
 <html lang="en">
 <head>
 <script type="module">
-import { add } from "./build/release.js";
-document.body.innerText = add(1, 2);
+import { getJson } from "./build/release.js";
+const player = {
+  firstName: "Emmet",
+  lastName: "West",
+  lastActive: [8, 27, 2022],
+  age: 23,
+  pos: {
+    x: 3.4,
+    y: 1.2,
+    z: 8.3
+  },
+  isVerified: true
+};
+
+const jsonString = JSON.stringify(player, null, 2); // The '2' here is for formatting with a 2-space indentation
+console.log(jsonString);
+document.body.innerText = getJson(jsonString);
 </script>
 </head>
 <body></body>
