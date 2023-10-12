@@ -2,43 +2,34 @@ import { JSON } from "json-as/assembly";
 
 // @json or @serializable work here
 @json
-class Vec3 {
-  x!: f32;
-  y!: f32;
-  z!: f32;
+class Attribute {
+  name!: string;
+  type!: string;
 }
 
 @json
-class Player {
-  firstName!: string;
-  lastName!: string;
-  lastActive!: i32[];
-  age!: i32;
-  pos!: Vec3 | null;
-  isVerified!: boolean;
+class Property {
+  attribute!: Attribute;
+  operator!: string;
+  value!: Array<string>;
 }
 
-const player: Player = {
-  firstName: "Emmet",
-  lastName: "West",
-  lastActive: [8, 27, 2022],
-  age: 23,
-  pos: {
-    x: 3.4,
-    y: 1.2,
-    z: 8.3
-  },
-  isVerified: true
-};
-
-const stringified = JSON.stringify<Player>(player);
+type Paths = Array<Array<Property>>;
 
 
 
-export function getJson(jsonString: string) : bool {
-  const parsed = JSON.parse<Player>(jsonString);
-  if (parsed.age == 23) {
-    return true
+export function validateTunnelPolicy(jsonString: string) : bool {
+  const paths = JSON.parse<Paths>(jsonString);
+  for (let p = 0; p < paths.length; p++) {
+    let path = paths[p];
+    for (let i = 0; i < path.length; i++) {
+      let property = path[i];
+      let operator = property.operator;
+      let attributeName = property.attribute.name;
+      if (attributeName == "authn_ctx.sub") {
+        return true
+      }
+    }
   }
   return false
 }
