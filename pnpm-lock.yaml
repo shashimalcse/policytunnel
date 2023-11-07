@@ -15,6 +15,9 @@ importers:
       '@types/node':
         specifier: ^20.3.0
         version: 20.3.0
+      assemblyscript:
+        specifier: ^0.27.9
+        version: 0.27.9
       ts-jest:
         specifier: ^29.1.1
         version: 29.1.1(@babel/core@7.22.10)(jest@29.6.0)(typescript@5.1.6)
@@ -160,6 +163,25 @@ importers:
         version: 3.4.6(typescript@5.1.6)
 
   packages/shared: {}
+
+  packages/wasm:
+    dependencies:
+      as-string-sink:
+        specifier: ^0.5.3
+        version: 0.5.3
+      as-virtual:
+        specifier: ^0.1.9
+        version: 0.1.9
+      json-as:
+        specifier: ^0.5.65
+        version: 0.5.65
+      visitor-as:
+        specifier: ^0.11.4
+        version: 0.11.4(assemblyscript@0.27.9)
+    devDependencies:
+      assemblyscript:
+        specifier: ^0.27.9
+        version: 0.27.9
 
 packages:
 
@@ -2195,6 +2217,26 @@ packages:
     resolution: {integrity: sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==}
     engines: {node: '>=8'}
 
+  /as-string-sink@0.5.3:
+    resolution: {integrity: sha512-DN/QqfptDhi4FaBqehMN9wH5Dl/PcTSfCfzSmcdtf3OVYYIEip5iyVUcS6t40BAP/OoUwtxCCbD/dlr2kVG+3Q==}
+    dev: false
+
+  /as-variant@0.4.1:
+    resolution: {integrity: sha512-NCeerOfp1JRXRcT4WCqOBANPoDTE2zqS4eN+jPtdyNWJybUgG/rX9ugUxICkSQZzCfnG84zzxr3osQbjAkyiww==}
+    dev: false
+
+  /as-virtual@0.1.9:
+    resolution: {integrity: sha512-R1nR7TT0KcROL/TxSXmiX2Q+7CgUMrjT/y9IP07StStqWs32KT2mpadJNF//yHWRaIJWe6atqTqO0JzsdhkPcQ==}
+    dev: false
+
+  /assemblyscript@0.27.9:
+    resolution: {integrity: sha512-cFE/AMjVtBQ2iKFZPu/a3Z/KJzGex61C+X+y3GuLJ8Hr9Zdf46sy/JlIl6ikothQd2umM9CQDAD/uAPAEHL+oA==}
+    engines: {node: '>=16', npm: '>=7'}
+    hasBin: true
+    dependencies:
+      binaryen: 112.0.0-nightly.20230411
+      long: 5.2.3
+
   /autoprefixer@10.4.14(postcss@8.4.27):
     resolution: {integrity: sha512-FQzyfOsTlwVzjHxKEqRIAdJx9niO6VCBCoEwax/VLSoQF29ggECcPuBqUMZ+u8jCZOPSy8b8/8KnuFbp0SaFZQ==}
     engines: {node: ^10 || ^12 || >=14}
@@ -2294,6 +2336,10 @@ packages:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==}
     engines: {node: '>=8'}
     dev: true
+
+  /binaryen@112.0.0-nightly.20230411:
+    resolution: {integrity: sha512-4V9r9x9fjAVFZdR2yvBFc3BEJJIBYvd2X8X8k0zAuJsao2gl9wNHDmpQ30QsLo6hgkRfRImkCbCjhXW3RDOYXQ==}
+    hasBin: true
 
   /brace-expansion@1.1.11:
     resolution: {integrity: sha512-iCuPHDFgrHX7H2vEI/5xpz07zSHB00TpugqhmYtVmMO6518mCuRMoOYFldEBl0g187ufozdaHgWKcYFb61qGiA==}
@@ -3661,6 +3707,14 @@ packages:
     engines: {node: '>=4'}
     hasBin: true
 
+  /json-as@0.5.65:
+    resolution: {integrity: sha512-0pQTWIwlhz4V66CPhGqSHx445v/8dWRqD7UeHSxbyj2RIV+KwfDMV1ToOS2TPyR6xI9dbxWnelMHp1xQZkAuIQ==}
+    dependencies:
+      as-string-sink: 0.5.3
+      as-variant: 0.4.1
+      as-virtual: 0.1.9
+    dev: false
+
   /json-parse-even-better-errors@2.3.1:
     resolution: {integrity: sha512-xyFwyhro/JEof6Ghe2iz2NcXoj2sloNsWr/XsERDK/oiPCfaNhl5ONfp+jQdAZRQQ0IJWNzH9zIZF7li91kh2w==}
 
@@ -3715,12 +3769,19 @@ packages:
     dependencies:
       p-locate: 5.0.0
 
+  /lodash.clonedeep@4.5.0:
+    resolution: {integrity: sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==}
+    dev: false
+
   /lodash.memoize@4.1.2:
     resolution: {integrity: sha512-t7j+NzmgnQzTAYXcsHYLgimltOV1MXHtlOWf6GjL9Kj8GK5FInw5JotxvbOs+IvV1/Dzo04/fCGfLVs7aXb4Ag==}
     dev: true
 
   /lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
+
+  /long@5.2.3:
+    resolution: {integrity: sha512-lcHwpNoggQTObv5apGNCTdJrO69eHOZMi4BNC+rTLER8iHAqGrUVeLh/irVIM7zTw2bOXA8T6uNPeujwOLg/2Q==}
 
   /loose-envify@1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
@@ -4437,6 +4498,10 @@ packages:
       yargs-parser: 21.1.1
     dev: true
 
+  /ts-mixer@6.0.3:
+    resolution: {integrity: sha512-k43M7uCG1AkTyxgnmI5MPwKoUvS/bRvLvUb7+Pgpdlmok8AoqmUaZxUUw8zKM5B1lqZrt41GjYgnvAi0fppqgQ==}
+    dev: false
+
   /ts-node@10.9.1(@types/node@20.3.0)(typescript@5.1.6):
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
@@ -4612,6 +4677,16 @@ packages:
       '@jridgewell/trace-mapping': 0.3.19
       '@types/istanbul-lib-coverage': 2.0.4
       convert-source-map: 1.9.0
+
+  /visitor-as@0.11.4(assemblyscript@0.27.9):
+    resolution: {integrity: sha512-uih7AooY2V3LhzobjLqyEQzhYYBGeq0y/rZk295foM1Ko498f24NNXBDyM1SgzcLMFCAT/fpmSRco1BpTIdKNQ==}
+    peerDependencies:
+      assemblyscript: ^0.25.0
+    dependencies:
+      assemblyscript: 0.27.9
+      lodash.clonedeep: 4.5.0
+      ts-mixer: 6.0.3
+    dev: false
 
   /vite@4.3.9(@types/node@20.3.0):
     resolution: {integrity: sha512-qsTNZjO9NoJNW7KnOrgYwczm0WctJ8m/yqYAMAK9Lxt4SoySUfS5S8ia9K7JHpa3KEeMfyF8LoJ3c5NeBJy6pg==}

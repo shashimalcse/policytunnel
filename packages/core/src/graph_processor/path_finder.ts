@@ -1,8 +1,9 @@
-import Graph from "./graph";
+import Graph, { NodeProperties } from "./graph";
 
 export interface PathNode {
     nodeId: number;
     type: string;
+    properties ?: NodeProperties
 }
 
 export function findPaths(graph: Graph, startNodeId: number, endNodeType: string): PathNode[][] {
@@ -14,7 +15,7 @@ export function findPaths(graph: Graph, startNodeId: number, endNodeType: string
         const node = graph.nodes.find(node => node.id === nodeId);
 
         if (node) {
-            const pathNode: PathNode = { nodeId, type: node.type };
+            const pathNode: PathNode = { nodeId, type: node.type, properties: node.properties };
             currentPath.push(pathNode);
 
             if (node.type === endNodeType) {

@@ -33,3 +33,6 @@ cache
 fly.toml
 dump.rdb
 .pnpm-store/
+
+./runtime/debug/
+./runtime/target/

@@ -24,6 +24,7 @@ import { BlockType } from "@policytunnel/core/src/graph_processor/constants/bloc
 import { ControllerType } from './constants/controller';
 import useNodeStore from './store';
 import { executePaths } from '@policytunnel/core/src/graph_processor/path_executor';
+import { getTunnelPolicy } from '@policytunnel/core/src/graph_processor/policy_generator';
 import { getOpaPolicy } from '@policytunnel/core/src/opa_generator/generator';
 import initialInputValue from '@policytunnel/core/src/initialInput.json';
 
@@ -252,6 +253,7 @@ function handlePlaygroundEditorChange(value: any, event: any) {
   function handlePlaygroundInputSubmit() {
     if (playgroundInputValidated) {
       const path: any = findPaths(graph, 1, 'passBlock')
+      console.log(path)
       const allowed: boolean = executePaths(playgroundInputEditorValue, graph, path);
       if (allowed) {
         setPlaygroundOutput("allowed")
@@ -283,6 +285,8 @@ function handlePlaygroundEditorChange(value: any, event: any) {
   const handleGenerator = () => {
     const path: any = findPaths(graph, 1, 'passBlock')
     const opa_condition = getOpaPolicy(graph, path)
+    const tunnel_policy = getTunnelPolicy(graph, path)
+    console.log(tunnel_policy)
     setOpaPolicyValue(opa_condition)
   }
 
