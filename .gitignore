@@ -34,4 +34,5 @@ fly.toml
 dump.rdb
 .pnpm-store/
 
-/runtime/target
+/runtime/debug/
+/runtime/target/
