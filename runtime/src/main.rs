@@ -25,20 +25,20 @@ pub fn validate_tunnel_policy(policy_string: &str, input_string: &str) -> bool {
     match paths {
         Ok(paths) => {
             for path in paths {
-                let mut all_conditions_met: bool = false;
+                let mut all_conditions_met: bool = true;
                 for property in path {
                     if let Some(value) = get_value_from_input(&input, &property.attribute.name) {
                         match value {
                             Either::Left(single_value) => {
                                 match property.operator.as_str() {
                                     "equal" => {
-                                        if single_value == property.value[0] {
-                                            all_conditions_met = true;
+                                        if single_value != property.value[0] {
+                                            all_conditions_met = false;
                                         }
                                     },
                                     "not_equal" => {
-                                        if single_value != property.value[0] {
-                                            all_conditions_met = true;
+                                        if single_value == property.value[0] {
+                                            all_conditions_met = false;
                                         }
                                     },
                                     _ => {
@@ -49,10 +49,21 @@ pub fn validate_tunnel_policy(policy_string: &str, input_string: &str) -> bool {
                             Either::Right(values) => {
                                 match property.operator.as_str() {
                                     "contains" => {
-                                        if !values.is_empty() && values.contains(&property.value[0]) {
-                                            all_conditions_met = true;
+                                        if !values.is_empty() && !values.contains(&property.value[0]) {
+                                            all_conditions_met = false;
                                         }
                                     },
+                                    "not_contains" => {
+                                        if !values.is_empty() && values.contains(&property.value[0]) {
+                                            all_conditions_met = false;
+                                        }
+                                    },
+                                    "contain_at_least_one" => {
+                                        all_conditions_met = property.value.iter().any(|val| !values.contains(val));
+                                    },
+                                    "not_contain_at_least_one" => {
+                                        all_conditions_met = property.value.iter().any(|val| values.contains(val));
+                                    }
                                     _ => {
                                         break;
                                     }
