@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
-use serde_json::{Result, Value, Error};
+use serde_json::{Result, Value};
+use either::Either;
 
 #[derive(Serialize, Deserialize)]
 struct Attribute {
@@ -24,14 +25,43 @@ pub fn validate_tunnel_policy(policy_string: &str, input_string: &str) -> bool {
     match paths {
         Ok(paths) => {
             for path in paths {
+                let mut all_conditions_met: bool = false;
                 for property in path {
                     if let Some(value) = get_value_from_input(&input, &property.attribute.name) {
-                        let opeartor = property.operator; 
-                        if value.as_str() == Some("joe") {
-                            return true;
+                        match value {
+                            Either::Left(single_value) => {
+                                match property.operator.as_str() {
+                                    "equal" => {
+                                        if single_value == property.value[0] {
+                                            all_conditions_met = true;
+                                        }
+                                    },
+                                    "not_equal" => {
+                                        if single_value != property.value[0] {
+                                            all_conditions_met = true;
+                                        }
+                                    },
+                                    _ => {
+                                        break;
+                                    }
+                                }
+                            },
+                            Either::Right(values) => {
+                                match property.operator.as_str() {
+                                    "contains" => {
+                                        if !values.is_empty() && values.contains(&property.value[0]) {
+                                            all_conditions_met = true;
+                                        }
+                                    },
+                                    _ => {
+                                        break;
+                                    }
+                            }
                         }
                     }
                 }
+            }
+            return all_conditions_met;
             }
             false
         }
@@ -42,32 +72,51 @@ pub fn validate_tunnel_policy(policy_string: &str, input_string: &str) -> bool {
     }
 }
 
-fn get_value_from_input(input: &Value, attribute_name: &str) -> Option<Value> {
+fn get_value_from_input(input: &Value, attribute_name: &str) -> Option<Either<String, Vec<String>>> {
 
     let attribute_path: Vec<&str> = attribute_name.split('.').collect();
     let mut current_value = input;
 
     for key in attribute_path.iter() {
-        // Check if the current value is an object and contains the key
         current_value = match current_value {
             Value::Object(obj) => obj.get(*key)?,
             _ => return None, // Early return if the current value is not an object
         };
     }
 
-    // If the loop completes, current_value is the desired attribute
-    Some(current_value.clone())
+    match current_value {
+        Value::String(s) => Some(Either::Left(s.clone())),
+        Value::Array(arr) => {
+            let strings: Option<Vec<String>> = arr.iter().map(|v| {
+                if let Value::String(s) = v {
+                    Some(s.clone())
+                } else {
+                    None // Return None if any of the values in the array is not a string
+                }
+            }).collect();
+            strings.map(Either::Right)
+        },
+        _ => None // Return None if the value is neither a string nor an array of strings
+    }
 }
+
 
 fn main() {
     // Example JSON string
-    let policy_string = r#"
+    let policy_string = r#"[
         [
-            [
-                {"attribute": {"name": "authn_ctx.sub", "type": "String"}, "operator": "equals", "value": ["some_value"]}
+          {
+            "attribute": {
+              "name": "authn_ctx.scp",
+              "type": "array"
+            },
+            "operator": "contains",
+            "value": [
+              "email"
             ]
+          }
         ]
-    "#;
+      ]"#;
 
     let json_input = r#"
     {
