@@ -81,6 +81,9 @@ importers:
       utils:
         specifier: link:@mui/material/utils
         version: link:@mui/material/utils
+      wasm-loader:
+        specifier: ^1.3.0
+        version: 1.3.0(wasm-dce@1.0.2)
       zustand:
         specifier: ^4.4.0
         version: 4.4.0(@types/react@18.0.37)(react@18.2.0)
@@ -127,6 +130,9 @@ importers:
       vite:
         specifier: ^4.3.9
         version: 4.3.9(@types/node@20.3.0)
+      vite-plugin-wasm:
+        specifier: ^3.2.2
+        version: 3.2.2(vite@4.3.9)
 
   packages/core:
     dependencies:
@@ -2329,8 +2335,18 @@ packages:
       babel-plugin-jest-hoist: 29.5.0
       babel-preset-current-node-syntax: 1.0.1(@babel/core@7.22.10)
 
+  /babylon@7.0.0-beta.47:
+    resolution: {integrity: sha512-+rq2cr4GDhtToEzKFD6KZZMDBXhjFAr9JjPw9pAppZACeEWqNM294j+NdBzkSHYXwzzBmVjZ3nEVJlOhbR2gOQ==}
+    engines: {node: '>=6.0.0'}
+    hasBin: true
+    dev: false
+
   /balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
+
+  /big.js@5.2.2:
+    resolution: {integrity: sha512-vyL2OymJxmarO8gxMr0mhChsO9QGwhynfuu4+MHTAW6czfq9humCB7rKpUjDd9YUiDPU4mzpyupFSvOClAwbmQ==}
+    dev: false
 
   /binary-extensions@2.2.0:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==}
@@ -2682,6 +2698,11 @@ packages:
 
   /emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
+
+  /emojis-list@3.0.0:
+    resolution: {integrity: sha512-/kyM18EfinwXZbno9FyUGeFh87KC8HRQBQGildHZbEuRyWFOmv1U10o9BBp8XVZDVNNuQKyIGIu5ZYAAXJ0V2Q==}
+    engines: {node: '>= 4'}
+    dev: false
 
   /error-ex@1.3.2:
     resolution: {integrity: sha512-7dFHNmqeFSEt2ZBsCriorKnn3Z2pj+fd9kmI6QoWw4//DL+icEBfc0U7qJCisqrTsKTjw4fNFy2pW9OqStD84g==}
@@ -3724,6 +3745,13 @@ packages:
   /json-stable-stringify-without-jsonify@1.0.1:
     resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==}
 
+  /json5@1.0.2:
+    resolution: {integrity: sha512-g1MWMLBiz8FKi1e4w0UyVL3w+iJceWAFBAaBnnGKOpNa5f8TLktkbre1+s6oICydWAm+HRUGTmI+//xv2hvXYA==}
+    hasBin: true
+    dependencies:
+      minimist: 1.2.8
+    dev: false
+
   /json5@2.2.3:
     resolution: {integrity: sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==}
     engines: {node: '>=6'}
@@ -3757,6 +3785,15 @@ packages:
   /lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
 
+  /loader-utils@1.4.2:
+    resolution: {integrity: sha512-I5d00Pd/jwMD2QCduo657+YM/6L3KZu++pmX9VFncxaxvHcru9jx1lBaFft+r4Mt2jK0Yhp41XlRAihzPxHNCg==}
+    engines: {node: '>=4.0.0'}
+    dependencies:
+      big.js: 5.2.2
+      emojis-list: 3.0.0
+      json5: 1.0.2
+    dev: false
+
   /locate-path@5.0.0:
     resolution: {integrity: sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==}
     engines: {node: '>=8'}
@@ -3779,6 +3816,11 @@ packages:
 
   /lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
+
+  /long@3.2.0:
+    resolution: {integrity: sha512-ZYvPPOMqUwPoDsbJaR10iQJYnMuZhRTvHYl62ErLIEX7RgFlziSBUUvrt3OVfc47QlHHpzPZYP17g3Fv7oeJkg==}
+    engines: {node: '>=0.6'}
+    dev: false
 
   /long@5.2.3:
     resolution: {integrity: sha512-lcHwpNoggQTObv5apGNCTdJrO69eHOZMi4BNC+rTLER8iHAqGrUVeLh/irVIM7zTw2bOXA8T6uNPeujwOLg/2Q==}
@@ -3840,7 +3882,6 @@ packages:
 
   /minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
-    dev: true
 
   /monaco-editor@0.41.0:
     resolution: {integrity: sha512-1o4olnZJsiLmv5pwLEAmzHTE/5geLKQ07BrGxlF4Ri/AXAc2yyDGZwHjiTqD8D/ROKUZmwMA28A+yEowLNOEcA==}
@@ -4688,6 +4729,14 @@ packages:
       ts-mixer: 6.0.3
     dev: false
 
+  /vite-plugin-wasm@3.2.2(vite@4.3.9):
+    resolution: {integrity: sha512-cdbBUNR850AEoMd5nvLmnyeq63CSfoP1ctD/L2vLk/5+wsgAPlAVAzUK5nGKWO/jtehNlrSSHLteN+gFQw7VOA==}
+    peerDependencies:
+      vite: ^2 || ^3 || ^4
+    dependencies:
+      vite: 4.3.9(@types/node@20.3.0)
+    dev: true
+
   /vite@4.3.9(@types/node@20.3.0):
     resolution: {integrity: sha512-qsTNZjO9NoJNW7KnOrgYwczm0WctJ8m/yqYAMAK9Lxt4SoySUfS5S8ia9K7JHpa3KEeMfyF8LoJ3c5NeBJy6pg==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -4729,6 +4778,40 @@ packages:
     resolution: {integrity: sha512-ts/8E8l5b7kY0vlWLewOkDXMmPdLcVV4GmOQLyxuSswIJsweeFZtAsMF7k1Nszz+TYBQrlYRmzOnr398y1JemQ==}
     dependencies:
       makeerror: 1.0.12
+
+  /wasm-dce@1.0.2:
+    resolution: {integrity: sha512-Fq1+nu43ybsjSnBquLrW/cULmKs61qbv9k8ep13QUe0nABBezMoNAA+j6QY66MW0/eoDVDp1rjXDqQ2VKyS/Xg==}
+    dependencies:
+      '@babel/core': 7.22.10
+      '@babel/traverse': 7.22.10
+      '@babel/types': 7.22.10
+      babylon: 7.0.0-beta.47
+      webassembly-interpreter: 0.0.30
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  /wasm-loader@1.3.0(wasm-dce@1.0.2):
+    resolution: {integrity: sha512-R4s75XH+o8qM+WaRrAU9S2rbAMDzob18/S3V8R9ZoFpZkPWLAohWWlzWAp1ybeTkOuuku/X1zJtxiV0pBYxZww==}
+    peerDependencies:
+      wasm-dce: 1.x
+    dependencies:
+      loader-utils: 1.4.2
+      wasm-dce: 1.0.2
+    dev: false
+
+  /webassembly-floating-point-hex-parser@0.1.2:
+    resolution: {integrity: sha512-TUf1H++8U10+stJbFydnvrpG5Sznz5Rilez/oZlV5zI0C/e4cSxd8rALAJ8VpTvjVWxLmL3SVSJUK6Ap9AoiNg==}
+    dev: false
+
+  /webassembly-interpreter@0.0.30:
+    resolution: {integrity: sha512-+Jdy2piEvz9T5j751mOE8+rBO12p+nNW6Fg4kJZ+zP1oUfsm+151sbAbM8AFxWTURmWCGP+r8Lxwfv3pzN1bCQ==}
+    hasBin: true
+    dependencies:
+      '@babel/code-frame': 7.22.10
+      long: 3.2.0
+      webassembly-floating-point-hex-parser: 0.1.2
+    dev: false
 
   /which@1.3.1:
     resolution: {integrity: sha512-HxJdYWq1MTIQbJ3nw0cqssHoTNU267KlrDuGZ1WYlxDStUtKUhOaJmh112/TZmHxxUfuJqPXSOm7tDyas0OSIQ==}

@@ -4,7 +4,7 @@ import ReactFlow, {
 } from 'reactflow';
 import './App.css'
 import 'reactflow/dist/style.css';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import IfBlock from './nodes/if_block';
 import StartBlock from './nodes/start_block';
 import EndBlock from './nodes/end_block';
@@ -27,6 +27,7 @@ import { executePaths } from '@policytunnel/core/src/graph_processor/path_execut
 import { getTunnelPolicy } from '@policytunnel/core/src/graph_processor/policy_generator';
 import { getOpaPolicy } from '@policytunnel/core/src/opa_generator/generator';
 import initialInputValue from '@policytunnel/core/src/initialInput.json';
+import { runWasmFunction } from './utils/wasm';
 
 
 const nodeTypes = {
@@ -255,6 +256,8 @@ function handlePlaygroundEditorChange(value: any, event: any) {
       const path: any = findPaths(graph, 1, 'passBlock')
       console.log(path)
       const allowed: boolean = executePaths(playgroundInputEditorValue, graph, path);
+      const tunnel_policy = getTunnelPolicy(graph, path);
+      runWasmFunction(tunnel_policy, playgroundInputEditorValue);
       if (allowed) {
         setPlaygroundOutput("allowed")
       } else {
@@ -262,8 +265,6 @@ function handlePlaygroundEditorChange(value: any, event: any) {
       }
     }
   }
-
-
 
   const [showController, setShowController] = useState(false);
   const [opaPolicyValue, setOpaPolicyValue] = useState("");
